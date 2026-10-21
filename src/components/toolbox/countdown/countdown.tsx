@@ -12,6 +12,7 @@ import {
 import { useSoundEffect } from '@/hooks/use-sound-effect';
 import { useSettingsStore } from '@/stores/settings';
 import { padNumber } from '@/helpers/number';
+import { createSessionClock } from '@/lib/session-clock';
 
 import styles from './countdown.module.css';
 
@@ -28,45 +29,71 @@ export function Countdown({ onClose, show }: CountdownProps) {
   const [initialTime, setInitialTime] = useState(0);
   const [isActive, setIsActive] = useState(false);
   const [isFormVisible, setIsFormVisible] = useState(true);
+  const [clock] = useState(() => createSessionClock('down'));
   const alarmVolume = useSettingsStore(state => state.alarmVolume);
 
   const alarm = useSoundEffect('/sounds/alarm.mp3', alarmVolume);
 
+  const updateClock = useCallback(
+    (pause = false) => {
+      const snapshot = pause ? clock.pause() : clock.tick();
+      setTimeLeft(snapshot.seconds);
+      if (snapshot.completed) {
+        alarm.play();
+        setIsActive(false);
+        setIsFormVisible(true);
+      }
+      return snapshot;
+    },
+    [clock, alarm],
+  );
+
   useEffect(() => {
-    let timer: NodeJS.Timeout;
+    if (!isActive) return;
+    const update = () => updateClock();
+    const interval = setInterval(update, 250);
+    document.addEventListener('visibilitychange', update);
+    update();
 
-    if (isActive && timeLeft > 0) {
-      timer = setTimeout(() => setTimeLeft(timeLeft - 1), 1000);
-    } else if (timeLeft === 0 && isActive) {
-      alarm.play();
-      setIsActive(false);
-      setIsFormVisible(true);
-    }
+    return () => {
+      clearInterval(interval);
+      document.removeEventListener('visibilitychange', update);
+    };
+  }, [isActive, updateClock]);
 
-    return () => clearTimeout(timer);
-  }, [isActive, timeLeft, alarm]);
-
-  const startDuration = useCallback((totalTime: number) => {
-    if (totalTime <= 0) return;
-    setTimeLeft(totalTime);
-    setInitialTime(totalTime);
-    setIsActive(true);
-    setIsFormVisible(false);
-  }, []);
+  const startDuration = useCallback(
+    (totalTime: number) => {
+      if (!Number.isFinite(totalTime) || totalTime <= 0) return;
+      clock.reset(totalTime);
+      clock.start();
+      setTimeLeft(totalTime);
+      setInitialTime(totalTime);
+      setIsActive(true);
+      setIsFormVisible(false);
+    },
+    [clock],
+  );
 
   const handleStart = useCallback(() => {
     startDuration((hours || 0) * 3600 + (minutes || 0) * 60 + (seconds || 0));
   }, [hours, minutes, seconds, startDuration]);
 
   const handleBack = useCallback(() => {
+    clock.reset();
     setIsActive(false);
     setIsFormVisible(true);
     setTimeLeft(0);
-  }, []);
+  }, [clock]);
 
   const toggleTimer = useCallback(() => {
-    setIsActive(prev => !prev);
-  }, []);
+    if (isActive) {
+      updateClock(true);
+      setIsActive(false);
+    } else if (clock.tick().seconds > 0) {
+      clock.start();
+      setIsActive(true);
+    }
+  }, [clock, isActive, updateClock]);
 
   const formatTime = useCallback((time: number) => {
     const hrs = Math.floor(time / 3600);

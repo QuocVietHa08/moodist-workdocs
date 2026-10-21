@@ -4,6 +4,7 @@ import { FaCheck } from 'react-icons/fa6/index';
 import styles from './checkbox.module.css';
 
 type CheckboxInputProps = {
+  'aria-label'?: string;
   checked?: boolean;
   className?: string;
   defaultChecked?: boolean;
@@ -12,6 +13,7 @@ type CheckboxInputProps = {
 };
 
 export function Checkbox({
+  'aria-label': ariaLabel,
   checked,
   className,
   defaultChecked = false,
@@ -24,6 +26,7 @@ export function Checkbox({
 
   return (
     <RadixCheckbox.Root
+      aria-label={ariaLabel}
       checked={checked}
       className={`${styles.checkboxRoot} ${className}`}
       defaultChecked={defaultChecked}

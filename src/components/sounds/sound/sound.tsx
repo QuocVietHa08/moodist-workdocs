@@ -15,9 +15,8 @@ import styles from './sound.module.css';
 
 import type { Sound as SoundType } from '@/data/types';
 
-import { useKeyboardButton } from '@/hooks/use-keyboard-button';
-
 interface SoundProps extends SoundType {
+  categoryId: string;
   functional: boolean;
   hidden: boolean;
   selectHidden: (key: string) => void;
@@ -25,7 +24,17 @@ interface SoundProps extends SoundType {
 }
 
 export const Sound = forwardRef<HTMLDivElement, SoundProps>(function Sound(
-  { functional, hidden, icon, id, label, selectHidden, src, unselectHidden },
+  {
+    categoryId,
+    functional,
+    hidden,
+    icon,
+    id,
+    label,
+    selectHidden,
+    src,
+    unselectHidden,
+  },
   ref,
 ) {
   const isPlaying = useSoundStore(state => state.isPlaying);
@@ -87,28 +96,28 @@ export const Sound = forwardRef<HTMLDivElement, SoundProps>(function Sound(
     else select();
   }, [isSelected, select, unselect, locked]);
 
-  const handleClick = useCallback(() => {
-    toggle();
-  }, [toggle]);
-
-  const handleKeyDown = useKeyboardButton(() => {
-    toggle();
-  });
-
   return (
     <div
-      aria-label={`${label} sound`}
+      data-sound-card
+      data-category={categoryId}
       ref={ref}
-      role="button"
-      tabIndex={0}
       className={cn(
         styles.sound,
         isSelected && styles.selected,
         hidden && styles.hidden,
       )}
-      onClick={handleClick}
-      onKeyDown={handleKeyDown}
     >
+      <button
+        aria-description={
+          isSelected ? (isPlaying ? 'Playing' : 'Paused') : undefined
+        }
+        aria-label={`${label} sound`}
+        aria-pressed={isSelected}
+        className={styles.toggle}
+        disabled={locked}
+        onClick={toggle}
+        type="button"
+      />
       <div className={styles.icon}>
         {isLoading ? (
           <span aria-hidden="true" className={styles.spinner}>
@@ -117,11 +126,25 @@ export const Sound = forwardRef<HTMLDivElement, SoundProps>(function Sound(
         ) : (
           <span aria-hidden="true">{icon}</span>
         )}
+        {isSelected && isPlaying && !isLoading && (
+          <span aria-hidden="true" className={styles.playingIndicator}>
+            <i />
+            <i />
+            <i />
+          </span>
+        )}
       </div>
       <div className={styles.content}>
         <div className={styles.heading}>
-          <div className={styles.label} id={id}>
-            {label}
+          <div aria-hidden="true" className={styles.name}>
+            <div className={styles.label}>{label}</div>
+            <span className={styles.state}>
+              {isSelected
+                ? isPlaying
+                  ? 'Playing'
+                  : 'In your mix'
+                : 'Play sound'}
+            </span>
           </div>
           <Favorite id={id} label={label} />
         </div>
@@ -138,11 +161,7 @@ export const Sound = forwardRef<HTMLDivElement, SoundProps>(function Sound(
               disabled={locked}
               title="Gently raise and lower volume"
               type="button"
-              onClick={event => {
-                event.stopPropagation();
-                toggleOscillation(id);
-              }}
-              onKeyDown={event => event.stopPropagation()}
+              onClick={() => toggleOscillation(id)}
             >
               <TbWaveSine aria-hidden="true" />
               <span>Swell</span>

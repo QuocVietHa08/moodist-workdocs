@@ -1,4 +1,11 @@
-import { useState, useMemo, useCallback, useRef, useEffect } from 'react';
+import {
+  useState,
+  useMemo,
+  useCallback,
+  useRef,
+  useEffect,
+  useId,
+} from 'react';
 import { AnimatePresence, motion } from 'motion/react';
 
 import { Sound } from './sound';
@@ -19,16 +26,15 @@ interface SoundsProps {
 const DEFAULT_VISIBLE_SOUNDS = 9;
 
 export function Sounds({ functional, id, sounds }: SoundsProps) {
+  const soundListId = useId();
   const [showAll, setShowAll] = useLocalStorage(`${id}-show-more`, false);
   const [clickedMore, setClickedMore] = useState(false);
-
-  const [isAnimating, setIsAnimating] = useState(false);
 
   const firstNewSound = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (showAll && clickedMore) {
-      firstNewSound.current?.focus();
+      firstNewSound.current?.querySelector('button')?.focus();
       setClickedMore(false);
     }
   }, [showAll, clickedMore]);
@@ -60,21 +66,20 @@ export function Sounds({ functional, id, sounds }: SoundsProps) {
   }, []);
 
   const toggleMore = () => {
-    if (!isAnimating) {
-      setShowAll(prev => !prev);
-      setClickedMore(true);
-    }
+    setShowAll(prev => !prev);
+    setClickedMore(true);
   };
 
   const variants = mix(fade(), scale(0.9));
 
   return (
     <div>
-      <div className={styles.sounds}>
+      <div className={styles.sounds} id={soundListId}>
         {sounds.map((sound, index) => (
           <Sound
             key={sound.label}
             {...sound}
+            categoryId={id}
             functional={functional}
             hidden={!showAll && index >= DEFAULT_VISIBLE_SOUNDS}
             ref={index === DEFAULT_VISIBLE_SOUNDS ? firstNewSound : undefined}
@@ -91,12 +96,15 @@ export function Sounds({ functional, id, sounds }: SoundsProps) {
 
       {sounds.length > DEFAULT_VISIBLE_SOUNDS && (
         <button
+          aria-controls={soundListId}
+          aria-expanded={showAll}
           ref={showMoreButton}
           className={cn(
             styles.button,
             hasHiddenSelection && !showAll && styles.active,
           )}
           onClick={toggleMore}
+          type="button"
         >
           <AnimatePresence initial={false} mode="wait">
             <motion.span
@@ -105,8 +113,6 @@ export function Sounds({ functional, id, sounds }: SoundsProps) {
               initial="hidden"
               key={showAll ? `${id}-show-less` : `${id}-show-more`}
               variants={variants}
-              onAnimationComplete={() => setIsAnimating(false)}
-              onAnimationStart={() => setIsAnimating(true)}
             >
               {showAll ? 'Show Less' : 'Show More'}
             </motion.span>

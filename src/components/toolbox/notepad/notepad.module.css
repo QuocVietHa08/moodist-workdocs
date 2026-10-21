@@ -37,8 +37,13 @@
 }
 
 .counter {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+  align-items: center;
+  justify-content: space-between;
   margin-top: 8px;
   font-size: var(--font-xsm);
+  line-height: 1.5;
   color: var(--color-foreground-subtle);
-  text-align: center;
 }

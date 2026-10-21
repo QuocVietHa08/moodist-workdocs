@@ -9,8 +9,6 @@ import { fade } from '@/lib/motion';
 
 import styles from './favorite.module.css';
 
-import { useKeyboardButton } from '@/hooks/use-keyboard-button';
-
 interface FavoriteProps {
   id: string;
   label: string;
@@ -22,7 +20,7 @@ export function Favorite({ id, label }: FavoriteProps) {
   const toggleFavorite = useSoundStore(state => state.toggleFavorite);
 
   const handleToggle = () => {
-    const card = buttonRef.current?.closest<HTMLElement>('[role="button"]');
+    const card = buttonRef.current?.closest<HTMLElement>('[data-sound-card]');
     const topBefore = card?.getBoundingClientRect().top;
 
     flushSync(() => toggleFavorite(id));
@@ -37,8 +35,6 @@ export function Favorite({ id, label }: FavoriteProps) {
 
   const variants = fade();
 
-  const handleKeyDown = useKeyboardButton(handleToggle);
-
   return (
     <AnimatePresence initial={false} mode="wait">
       <button
@@ -49,11 +45,9 @@ export function Favorite({ id, label }: FavoriteProps) {
             ? `Remove ${label} Sound from Favorites`
             : `Add ${label} Sound to Favorites`
         }
-        onKeyDown={handleKeyDown}
-        onClick={e => {
-          e.stopPropagation();
-          handleToggle();
-        }}
+        aria-pressed={isFavorite}
+        onClick={handleToggle}
+        type="button"
       >
         <motion.span
           animate="show"

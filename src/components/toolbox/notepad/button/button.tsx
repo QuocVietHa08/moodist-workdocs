@@ -28,6 +28,7 @@ export function Button({
           critical && styles.critical,
           recommended && styles.recommended,
         )}
+        type="button"
         onClick={onClick}
       >
         {icon}

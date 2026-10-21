@@ -1,11 +1,85 @@
 .buttons {
   position: sticky;
-  top: 30px;
+  top: 16px;
   z-index: 10;
   display: flex;
-  column-gap: 0;
+  gap: 16px;
   align-items: center;
-  justify-content: center;
-  width: max-content;
-  margin: 0 auto;
+  justify-content: space-between;
+  padding: 10px 14px;
+  margin: 0 0 24px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 18px;
+  box-shadow: 0 6px 24px rgb(0 0 0 / 4%);
+}
+
+.info {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  min-width: 0;
+}
+.mark {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  font-size: 22px;
+  color: var(--color-accent);
+  background: var(--color-selected-surface);
+  border-radius: 11px;
+}
+.title {
+  font-size: 15px;
+  font-weight: 450;
+}
+.copy {
+  min-width: 0;
+}
+.titleRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 10px;
+  align-items: baseline;
+}
+.state {
+  font-size: 11px;
+  color: var(--color-foreground-subtler);
+}
+.buttons[data-playing='true'] .state {
+  color: var(--color-accent);
+}
+.status {
+  margin-top: 4px;
+  overflow: hidden;
+  font-size: 12px;
+  color: var(--color-foreground-subtle);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.actions {
+  display: flex;
+  flex: none;
+  align-items: center;
+}
+
+@media (width <= 600px) {
+  .buttons {
+    top: 10px;
+    gap: 8px;
+    padding: 10px;
+    margin-bottom: 22px;
+    border-radius: 18px;
+  }
+  .info {
+    flex: 1;
+  }
+  .mark {
+    display: none;
+  }
+  .actions {
+    width: auto;
+  }
 }

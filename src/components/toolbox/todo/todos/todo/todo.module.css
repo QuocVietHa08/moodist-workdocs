@@ -7,11 +7,26 @@
   margin-top: 12px;
   background-color: var(--color-background);
   border: 1px solid var(--color-border);
-  border-radius: 0;
+  border-radius: 10px;
+
+  &:focus-within {
+    border-color: var(--color-focus);
+  }
 
   & .checkbox {
     display: block;
     margin: 0 8px 0 4px;
+
+    & button {
+      width: 24px;
+      height: 24px;
+      border-radius: 6px;
+    }
+
+    & button:focus-visible {
+      outline: 2px solid var(--color-focus);
+      outline-offset: 3px;
+    }
   }
 
   & .textbox {
@@ -23,6 +38,12 @@
     background-color: transparent;
     border: none;
     outline: none;
+
+    &:focus-visible {
+      outline: 2px solid var(--color-focus);
+      outline-offset: 2px;
+      border-radius: 6px;
+    }
 
     &.done {
       color: var(--color-foreground-subtle);
@@ -36,10 +57,30 @@
     justify-content: center;
     height: 100%;
     aspect-ratio: 1 / 1;
-    color: #f43f5e;
+    color: var(--color-foreground-subtler);
     cursor: pointer;
-    background-color: rgb(244 63 94 / 15%);
+    background-color: transparent;
     border: none;
-    border-radius: 0;
+    border-radius: 8px;
+    transition:
+      color 140ms ease,
+      background-color 140ms ease;
+
+    &:hover,
+    &:focus-visible {
+      color: #f43f5e;
+      background-color: rgb(244 63 94 / 12%);
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--color-focus);
+      outline-offset: 2px;
+    }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wrapper .delete {
+    transition: none;
   }
 }

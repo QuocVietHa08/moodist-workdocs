@@ -12,9 +12,10 @@ export function Form() {
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    if (!value.trim().length) return;
+    const task = value.trim();
+    if (!task) return;
 
-    addTodo(value);
+    addTodo(task);
     setValue('');
   };
 
@@ -22,12 +23,15 @@ export function Form() {
     <form onSubmit={handleSubmit}>
       <div className={styles.wrapper}>
         <input
-          placeholder="I have to ..."
+          aria-label="New task"
+          placeholder="Add a task"
           type="text"
           value={value}
           onChange={e => setValue(e.target.value)}
         />
-        <button type="submit">Add</button>
+        <button disabled={!value.trim()} type="submit">
+          Add
+        </button>
       </div>
     </form>
   );

@@ -1,12 +1,13 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Command } from 'cmdk';
-import { BiCheck, BiSearch } from 'react-icons/bi/index';
+import { BiCheck, BiSearch, BiX } from 'react-icons/bi/index';
 
 import { OPEN_SOUND_SEARCH } from '@/constants/events';
 import { sounds as soundCatalog } from '@/data/sounds';
 import { useCloseListener } from '@/hooks/use-close-listener';
 import { subscribe } from '@/lib/event';
 import { closeModals } from '@/lib/modal';
+import { filterSound } from '@/lib/sound-search';
 import { useSoundStore } from '@/stores/sound';
 
 import styles from './sound-search.module.css';
@@ -75,6 +76,7 @@ export function SoundSearch() {
     <Command.Dialog
       className={styles.command}
       contentClassName={styles.dialog}
+      filter={filterSound}
       label="Search sounds"
       loop
       open={open}
@@ -92,10 +94,21 @@ export function SoundSearch() {
           value={query}
           onValueChange={setQuery}
         />
+        <button
+          aria-label="Close sound search"
+          className={styles.close}
+          onClick={closeSearch}
+          type="button"
+        >
+          <BiX aria-hidden="true" />
+        </button>
       </div>
 
       <Command.List className={styles.results} aria-label="Sound results">
-        <Command.Empty className={styles.empty}>No sounds found.</Command.Empty>
+        <Command.Empty className={styles.empty}>
+          <strong>No sounds found.</strong>
+          Try a sound or category, like rain, café, or nature.
+        </Command.Empty>
         {soundCatalog.categories.map(category => (
           <Command.Group
             className={styles.group}

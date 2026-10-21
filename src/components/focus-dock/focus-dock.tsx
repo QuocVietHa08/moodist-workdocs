@@ -53,21 +53,24 @@ export function FocusDock({ active, onOpen, onClose }: FocusDockProps) {
   const start = usePomodoroStore(state => state.start);
   const duration = usePomodoroStore(state => state.durations[state.mode]);
   const hasSession = running || remaining < duration;
+  const timerAction = running
+    ? 'Pause'
+    : remaining === 0
+      ? 'Restart'
+      : 'Resume';
 
   return (
     <Portal>
       <aside aria-label="Quick tools" className={styles.dock}>
         {hasSession && (
           <button
-            aria-label={running ? 'Pause focus timer' : 'Resume focus timer'}
+            aria-label={`${timerAction} focus timer`}
             className={styles.time}
             onClick={running ? pause : start}
             type="button"
           >
             {formatPomodoroTime(remaining)}
-            <span>
-              {running ? 'Pause' : remaining === 0 ? 'Restart' : 'Resume'}
-            </span>
+            <span>{timerAction}</span>
           </button>
         )}
         <nav aria-label="Focus tools" className={styles.icons}>

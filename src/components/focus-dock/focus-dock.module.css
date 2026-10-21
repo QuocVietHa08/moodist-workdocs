@@ -33,8 +33,12 @@
   border: none;
   border-radius: 12px;
   cursor: pointer;
+  transition:
+    color 140ms ease,
+    background-color 140ms ease;
 }
-.icon:hover {
+.icon:hover,
+.icon:focus-visible {
   background: var(--color-surface-hover);
   color: var(--color-foreground);
 }
@@ -68,6 +72,11 @@
   border: 1px solid var(--color-border);
   border-radius: 999px;
   cursor: pointer;
+  transition: background-color 140ms ease;
+}
+.time:hover,
+.time:focus-visible {
+  background: var(--color-surface-hover);
 }
 .time span {
   font-size: 11px;
@@ -77,7 +86,7 @@
   outline: 2px solid var(--color-focus);
   outline-offset: 2px;
 }
-@media (width < 1200px) {
+@media (width < 1320px) {
   .dock {
     right: 50%;
     bottom: 80px;
@@ -100,4 +109,11 @@
   font-size: 9px;
   line-height: 1;
   font-weight: 450;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .icon,
+  .time {
+    transition: none;
+  }
 }

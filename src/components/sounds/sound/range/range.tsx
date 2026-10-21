@@ -1,4 +1,5 @@
 import { useSoundStore } from '@/stores/sound';
+import type { CSSProperties } from 'react';
 
 import styles from './range.module.css';
 
@@ -16,14 +17,15 @@ export function Range({ id, label }: RangeProps) {
   return (
     <input
       aria-label={`${label} sound volume`}
+      aria-valuetext={`${Math.round(volume * 100)}%`}
       autoComplete="off"
       className={styles.range}
-      disabled={!isSelected}
+      disabled={!isSelected || locked}
       max={100}
       min={0}
       type="range"
+      style={{ '--volume': `${volume * 100}%` } as CSSProperties}
       value={volume * 100}
-      onClick={e => e.stopPropagation()}
       onChange={e =>
         !locked && isSelected && setVolume(id, Number(e.target.value) / 100)
       }

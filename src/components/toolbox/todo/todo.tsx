@@ -17,8 +17,10 @@ export function Todo({ onClose, show }: TodoProps) {
     <Modal docked show={show} onClose={onClose}>
       <ModalHeader>
         <div>
-          <ModalTitle>Todo Checklist</ModalTitle>
-          <ModalDescription>Super simple todo list.</ModalDescription>
+          <ModalTitle>To-do list</ModalTitle>
+          <ModalDescription>
+            One next step. Saved in this browser.
+          </ModalDescription>
         </div>
       </ModalHeader>
 

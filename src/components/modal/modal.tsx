@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useId, useRef } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
 import { IoClose } from 'react-icons/io5/index';
 import FocusTrap from 'focus-trap-react';
@@ -7,6 +7,7 @@ import { Portal } from '@/components/portal';
 
 import { fade, mix, slideY } from '@/lib/motion';
 import { cn } from '@/helpers/styles';
+import { ModalTitleContext } from './elements';
 
 import styles from './modal.module.css';
 
@@ -24,6 +25,67 @@ interface ModalProps {
 
 const TRANSITION_DURATION = 300;
 
+function DockedPanel({
+  children,
+  onClose,
+  titleId,
+}: {
+  children: React.ReactNode;
+  onClose: () => void;
+  titleId: string;
+}) {
+  const panelRef = useRef<HTMLElement>(null);
+
+  useEffect(() => {
+    const panel = panelRef.current;
+    if (!panel) return;
+    const trigger = document.querySelector<HTMLElement>(
+      '[aria-controls="focus-tool-panel"][aria-expanded="true"]',
+    );
+    const previousFocus =
+      document.activeElement instanceof HTMLElement
+        ? document.activeElement
+        : null;
+    const frame = requestAnimationFrame(() => {
+      const input = panel.querySelector<HTMLElement>(
+        'textarea, input[type="text"]:not(:disabled)',
+      );
+      (input || panel).focus({ preventScroll: true });
+    });
+
+    return () => {
+      cancelAnimationFrame(frame);
+      if (
+        panel.contains(document.activeElement) ||
+        document.activeElement === document.body
+      ) {
+        const target = trigger?.isConnected ? trigger : previousFocus;
+        if (target?.isConnected) target.focus({ preventScroll: true });
+      }
+    };
+  }, []);
+
+  return (
+    <section
+      aria-labelledby={titleId}
+      className={styles.docked}
+      id="focus-tool-panel"
+      ref={panelRef}
+      tabIndex={-1}
+    >
+      <button
+        aria-label="Minimize tool"
+        className={styles.minimize}
+        onClick={onClose}
+        type="button"
+      >
+        <IoClose aria-hidden="true" />
+      </button>
+      {children}
+    </section>
+  );
+}
+
 export function Modal({
   children,
   docked = false,
@@ -35,6 +97,12 @@ export function Modal({
   show,
   wide,
 }: ModalProps) {
+  const titleId = useId();
+  const labelledChildren = (
+    <ModalTitleContext.Provider value={titleId}>
+      {children}
+    </ModalTitleContext.Provider>
+  );
   const variants = {
     modal: mix(fade(), slideY(20)),
     overlay: fade(),
@@ -76,21 +144,9 @@ export function Modal({
   if (docked) {
     return show ? (
       <Portal>
-        <section
-          aria-label="Tool workspace"
-          className={styles.docked}
-          id="focus-tool-panel"
-        >
-          <button
-            aria-label="Minimize tool"
-            className={styles.minimize}
-            onClick={onClose}
-            type="button"
-          >
-            <IoClose />
-          </button>
-          {children}
-        </section>
+        <DockedPanel titleId={titleId} onClose={onClose}>
+          {labelledChildren}
+        </DockedPanel>
       </Portal>
     ) : null;
   }
@@ -109,7 +165,10 @@ export function Modal({
         <div className={styles.modal}>
           <motion.div
             {...animationProps}
+            aria-labelledby={titleId}
+            aria-modal="true"
             className={cn(styles.content, wide && styles.wide)}
+            role="dialog"
             transition={{ duration: TRANSITION_DURATION / 1000 }}
             variants={variants.modal}
           >
@@ -120,7 +179,7 @@ export function Modal({
             >
               <IoClose />
             </button>
-            {children}
+            {labelledChildren}
           </motion.div>
         </div>
         {portalContainerRef && <div ref={portalContainerRef} />}

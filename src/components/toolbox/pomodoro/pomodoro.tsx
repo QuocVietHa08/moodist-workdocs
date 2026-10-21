@@ -76,6 +76,10 @@ export function Pomodoro({ onClose, show }: PomodoroProps) {
     timer.start();
   };
   const presets = timer.mode === 'pomodoro' ? [15, 25, 50] : [5, 10, 15];
+  const paused =
+    !timer.running &&
+    timer.remaining > 0 &&
+    timer.remaining < timer.durations[timer.mode];
 
   return (
     <Modal docked show={show} onClose={onClose}>
@@ -107,7 +111,9 @@ export function Pomodoro({ onClose, show }: PomodoroProps) {
           ? 'Time for one thing.'
           : timer.remaining === 0
             ? 'Session complete. Take a breath.'
-            : 'Ready when you are.'}
+            : paused
+              ? 'Paused. Take your time.'
+              : 'Ready when you are.'}
       </p>
       <div role="group" aria-label="Quick start" className={styles.presets}>
         {presets.map(value => (
@@ -164,8 +170,7 @@ export function Pomodoro({ onClose, show }: PomodoroProps) {
           )}
           {timer.running
             ? 'Pause timer'
-            : timer.remaining < timer.durations[timer.mode] &&
-                timer.remaining > 0
+            : paused
               ? 'Resume timer'
               : 'Start timer'}
         </button>

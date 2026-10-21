@@ -1,13 +1,14 @@
 .favoriteButton {
   display: flex;
-  flex: 0 0 26px;
+  flex: 0 0 36px;
   align-items: center;
   justify-content: center;
-  width: 26px;
-  height: 26px;
+  width: 36px;
+  height: 36px;
   line-height: 0;
   color: var(--color-foreground-subtler);
   cursor: pointer;
+  pointer-events: auto;
   background-color: transparent;
   border: none;
   border-radius: 50%;

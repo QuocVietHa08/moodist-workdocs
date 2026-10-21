@@ -27,7 +27,7 @@
     pointer-events: fill;
     background-color: var(--color-surface);
     border: 1px solid var(--color-border);
-    border-radius: 0;
+    border-radius: 20px;
     box-shadow: var(--shadow-floating);
 
     &.wide {
@@ -44,14 +44,14 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      width: 20px;
-      height: 20px;
+      width: 32px;
+      height: 32px;
       font-size: 16px;
       color: var(--color-foreground-subtle);
       cursor: pointer;
       background-color: transparent;
       border: none;
-      border-radius: 0;
+      border-radius: 50%;
       outline: none;
 
       &:focus-visible {
@@ -102,7 +102,7 @@
   cursor: pointer;
   background-color: var(--color-surface-hover);
   border: none;
-  border-radius: 0;
+  border-radius: 10px;
   outline: none;
   transition:
     color 180ms ease,
@@ -156,9 +156,15 @@
   border-radius: 20px;
   box-shadow: 0 12px 48px rgb(0 0 0 / 12%);
   overscroll-behavior: contain;
+  animation: panel-in 160ms ease-out;
+
+  &:focus-visible {
+    outline: 2px solid var(--color-focus);
+    outline-offset: 3px;
+  }
 
   & header {
-    padding-right: 20px;
+    padding-right: 32px;
   }
   & h2 {
     font-weight: 450;
@@ -186,8 +192,8 @@
   right: 12px;
   display: grid;
   place-items: center;
-  width: 28px;
-  height: 28px;
+  width: 32px;
+  height: 32px;
   color: var(--color-foreground-subtle);
   cursor: pointer;
   background: transparent;
@@ -197,7 +203,22 @@
     background: var(--color-surface-hover);
   }
 }
-@media (width < 1200px) {
+
+@keyframes panel-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .docked {
+    animation: none;
+  }
+}
+@media (width < 1320px) {
   .docked {
     right: 50%;
     bottom: 154px;

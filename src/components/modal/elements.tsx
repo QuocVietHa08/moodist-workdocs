@@ -1,6 +1,9 @@
+import { createContext, useContext } from 'react';
 import { cn } from '@/helpers/styles';
 
 import styles from './modal.module.css';
+
+export const ModalTitleContext = createContext<string | undefined>(undefined);
 
 export function ModalHeader({
   className,
@@ -11,9 +14,13 @@ export function ModalHeader({
 
 export function ModalTitle({
   className,
+  id,
   ...props
 }: React.ComponentPropsWithoutRef<'h2'>) {
-  return <h2 className={cn(styles.title, className)} {...props} />;
+  const titleId = useContext(ModalTitleContext);
+  return (
+    <h2 className={cn(styles.title, className)} id={id || titleId} {...props} />
+  );
 }
 
 export function ModalDescription({

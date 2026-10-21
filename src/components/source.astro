@@ -1,7 +1,6 @@
 ---
 import { FaGithub } from 'react-icons/fa/index';
 
-import { Binary } from './binary';
 import { Container } from './container';
 import { SpecialButton } from './special-button';
 
@@ -14,13 +13,13 @@ const initialBinary = generateRandomBinaryString(400);
   <Container>
     <div class="wrapper">
       <div aria-hidden="true" class="binary">
-        <Binary initialValue={initialBinary} client:visible />
+        <span>{initialBinary}</span>
       </div>
 
       <div class="copy">
         <h2>A calmer space, open to everyone.</h2>
         <p>
-          Moodist is free and open-source. Bring an idea, explore the code, or
+          Focus is free and open-source. Bring an idea, explore the code, or
           help make this little corner of the internet feel more like home.
         </p>
       </div>

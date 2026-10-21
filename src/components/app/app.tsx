@@ -2,6 +2,7 @@ import { useMemo, useEffect } from 'react';
 import { useShallow } from 'zustand/react/shallow';
 import { BiSolidHeart } from 'react-icons/bi/index';
 import { Howler } from 'howler';
+import { MotionConfig } from 'motion/react';
 
 import { useSoundStore } from '@/stores/sound';
 
@@ -89,20 +90,22 @@ export function App() {
   }, [favoriteSounds, categories]);
 
   return (
-    <SnackbarProvider>
-      <StoreConsumer>
-        <MediaControls />
-        <CategoryIcons />
-        <Container>
+    <MotionConfig reducedMotion="user">
+      <SnackbarProvider>
+        <StoreConsumer>
+          <MediaControls />
           <div id="app" />
-          <Buttons />
-          <Categories categories={allCategories} />
-        </Container>
+          <CategoryIcons />
+          <Container>
+            <Buttons />
+            <Categories categories={allCategories} />
+          </Container>
 
-        <Toolbar />
-        <SharedModal />
-        <SoundSearch />
-      </StoreConsumer>
-    </SnackbarProvider>
+          <Toolbar />
+          <SharedModal />
+          <SoundSearch />
+        </StoreConsumer>
+      </SnackbarProvider>
+    </MotionConfig>
   );
 }

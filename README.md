@@ -9,7 +9,7 @@ time for focused work, and keep your notes and next steps close.
 [Open Moodist + The Work Docs](https://focus.theworkdocs.com) ·
 [Explore The Work Docs](https://www.theworkdocs.com)
 
-![Moodist + The Work Docs: a little space to find your focus, above an illustrated garden](public/og.png)
+![Focus by The Work Docs: a little space to find your focus, above an illustrated garden](public/og.png)
 
 ## Features
 
@@ -42,7 +42,7 @@ above the sound controls.
 | Breathe | Follow a guided breathing pattern. |
 
 Timers keep running when their panels are minimized or another tool is open.
-Pomodoro accounts for elapsed time when you return from a background tab.
+Timers account for elapsed time when you return from a background tab.
 Timer sessions are not restored after a page reload.
 
 Notes, tasks, saved mixes, and settings are stored in your browser. No account is
@@ -75,11 +75,12 @@ The production build is written to `dist/`.
 
 ```bash
 pnpm check
-node --test tests/pomodoro.test.mjs
+node --test tests/*.test.mjs
 ```
 
 The timer tests cover elapsed time after a background delay, pause/resume, mode
-changes, completion handling, and duration validation.
+changes, completion handling, and duration validation. Search checks cover
+relevant category matches, accents, and multi-word queries.
 
 ## Deploy on Vercel
 

@@ -1,6 +1,7 @@
 import JSConfetti from 'js-confetti';
 
 export const addConfetti = () => {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
   const jsConfetti = new JSConfetti();
 
   jsConfetti.addConfetti({

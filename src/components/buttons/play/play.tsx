@@ -42,6 +42,7 @@ export function PlayButton() {
   return (
     <button
       aria-disabled={noSelected}
+      aria-label={isPlaying ? 'Pause' : 'Play'}
       className={cn(styles.playButton, noSelected && styles.disabled)}
       onClick={handleToggle}
     >
@@ -50,14 +51,14 @@ export function PlayButton() {
           <span aria-hidden="true">
             <BiPause />
           </span>{' '}
-          Pause
+          <span className={styles.label}>Pause</span>
         </>
       ) : (
         <>
           <span aria-hidden="true">
             <BiPlay />
           </span>{' '}
-          Play
+          <span className={styles.label}>Play</span>
         </>
       )}
     </button>

@@ -1,8 +1,8 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { FaUndo, FaPlay, FaPause, FaCheck } from 'react-icons/fa/index';
 import { IoMdSettings } from 'react-icons/io/index';
 
-import { Modal } from '@/components/modal';
+import { Modal, ModalTitle } from '@/components/modal';
 import { Button } from '../generics/button';
 import { Timer } from './timer';
 import { Tabs } from './tabs';
@@ -13,6 +13,7 @@ import { useSoundEffect } from '@/hooks/use-sound-effect';
 import { useFlowmodoroStore } from '@/stores/flowmodoro';
 import { useSettingsStore } from '@/stores/settings';
 import { useCloseListener } from '@/hooks/use-close-listener';
+import { createSessionClock } from '@/lib/session-clock';
 
 import styles from './flowmodoro.module.css';
 
@@ -25,7 +26,13 @@ interface FlowmodoroProps {
 export function Flowmodoro({ onClose, open, show }: FlowmodoroProps) {
   const [showSetting, setShowSetting] = useState(false);
 
-  const [selectedTab, setSelectedTab] = useState('flowmodoro');
+  const [selectedTab, setSelectedTab] = useState<'flowmodoro' | 'break'>(
+    'flowmodoro',
+  );
+  const [clocks] = useState(() => ({
+    flowmodoro: createSessionClock('up'),
+    break: createSessionClock('down'),
+  }));
 
   const running = useFlowmodoroStore(state => state.running);
   const setRunning = useFlowmodoroStore(state => state.setRunning);
@@ -59,51 +66,66 @@ export function Flowmodoro({ onClose, open, show }: FlowmodoroProps) {
 
   useCloseListener(() => setShowSetting(false));
 
+  const updateClock = useCallback(
+    (pause = false) => {
+      const clock = clocks[selectedTab];
+      const snapshot = pause ? clock.pause() : clock.tick();
+      if (selectedTab === 'break') setBreakSeconds(snapshot.seconds);
+      else setFocusSeconds(snapshot.seconds);
+      if (snapshot.completed) {
+        alarm.play();
+        setRunning(false);
+        setCompletions(previous => ({
+          ...previous,
+          break: previous.break + 1,
+        }));
+      }
+      return snapshot;
+    },
+    [clocks, selectedTab, setRunning, alarm],
+  );
+
   useEffect(() => {
     if (!running) return;
+    clocks[selectedTab].start();
+    const update = () => updateClock();
+    const interval = setInterval(update, 250);
+    document.addEventListener('visibilitychange', update);
+    update();
 
-    const interval = setInterval(() => {
-      if (selectedTab === 'break') {
-        setBreakSeconds(previous => Math.max(0, previous - 1));
-      } else {
-        setFocusSeconds(previous => previous + 1);
-      }
-    }, 1000);
-
-    return () => clearInterval(interval);
-  }, [running, selectedTab]);
-
-  useEffect(() => {
-    if (selectedTab === 'break' && breakSeconds === 0 && running) {
-      alarm.play();
-      setRunning(false);
-      setCompletions(previous => ({
-        ...previous,
-        break: previous.break + 1,
-      }));
-    }
-  }, [breakSeconds, selectedTab, running, setRunning, alarm]);
+    return () => {
+      clearInterval(interval);
+      document.removeEventListener('visibilitychange', update);
+    };
+  }, [running, selectedTab, clocks, updateClock]);
 
   const selectTab = (tab: string) => {
-    if (tab === selectedTab) return;
+    if (tab === selectedTab || (tab !== 'flowmodoro' && tab !== 'break'))
+      return;
+    updateClock(true);
     setRunning(false);
     setSelectedTab(tab);
   };
 
   const toggleRunning = () => {
     if (running) {
+      updateClock(true);
       setRunning(false);
     } else if (selectedTab !== 'break' || breakSeconds > 0) {
+      clocks[selectedTab].start();
       setRunning(true);
     }
   };
 
   const finishFocus = () => {
-    if (focusSeconds === 0) return;
+    const { seconds } = clocks.flowmodoro.pause();
+    if (seconds === 0) return;
     const duration = Math.max(
       1,
-      Math.round((focusSeconds * breakPercentage.break) / 100),
+      Math.round((seconds * breakPercentage.break) / 100),
     );
+    clocks.flowmodoro.reset();
+    clocks.break.reset(duration);
     setRunning(false);
     setBreakDuration(duration);
     setBreakSeconds(duration);
@@ -118,8 +140,10 @@ export function Flowmodoro({ onClose, open, show }: FlowmodoroProps) {
   const restart = () => {
     setRunning(false);
     if (selectedTab === 'break') {
+      clocks.break.reset(breakDuration);
       setBreakSeconds(breakDuration);
     } else {
+      clocks.flowmodoro.reset();
       setFocusSeconds(0);
     }
   };
@@ -128,7 +152,7 @@ export function Flowmodoro({ onClose, open, show }: FlowmodoroProps) {
     <>
       <Modal docked show={show} onClose={onClose}>
         <header className={styles.header}>
-          <h2 className={styles.title}>Flowmodoro Timer</h2>
+          <ModalTitle className={styles.title}>Flowmodoro timer</ModalTitle>
 
           <div className={styles.button}>
             <Button

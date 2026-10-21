@@ -11,7 +11,7 @@ export function Todos() {
   return (
     <div className={styles.todos}>
       <header>
-        <p className={styles.label}>Your Todos</p>
+        <p className={styles.label}>Your tasks</p>
         <div className={styles.divider} />
         <p className={styles.counter}>
           {doneCount} / {todos.length}
@@ -23,7 +23,7 @@ export function Todos() {
           <Todo done={todo.done} id={todo.id} key={todo.id} todo={todo.todo} />
         ))
       ) : (
-        <p className={styles.empty}>You don&apos;t have any todos.</p>
+        <p className={styles.empty}>Add a task to get started.</p>
       )}
     </div>
   );
