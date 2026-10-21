@@ -1,13 +1,10 @@
+import { useTranslation } from '@/contexts/language';
 import { Sounds } from '@/components/sounds';
-
 import styles from './category.module.css';
-
 import type { Category } from '@/data/types';
-
 interface CategoryProps extends Category {
   functional?: boolean;
 }
-
 const descriptions: Record<string, string> = {
   nature: 'Water, wind, and the world outside.',
   rain: 'A softer soundtrack for staying in.',
@@ -19,7 +16,6 @@ const descriptions: Record<string, string> = {
   noise: 'An even layer of sound to settle into.',
   favorites: 'The sounds you keep coming back to.',
 };
-
 export function Category({
   functional = true,
   icon,
@@ -27,6 +23,7 @@ export function Category({
   sounds,
   title,
 }: CategoryProps) {
+  const t = useTranslation();
   return (
     <div className={styles.category} data-category={id} id={`category-${id}`}>
       <div className={styles.header}>
@@ -35,13 +32,13 @@ export function Category({
         </div>
         <div className={styles.copy}>
           <div className={styles.titleRow}>
-            <h2 className={styles.title}>{title}</h2>
+            <h2 className={styles.title}>{t(title)}</h2>
             <span className={styles.count}>
-              {sounds.length} {sounds.length === 1 ? 'sound' : 'sounds'}
+              {t('{count} sounds', { count: sounds.length })}
             </span>
           </div>
           {descriptions[id] && (
-            <p className={styles.description}>{descriptions[id]}</p>
+            <p className={styles.description}>{t(descriptions[id])}</p>
           )}
         </div>
       </div>

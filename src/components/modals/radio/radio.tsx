@@ -1,3 +1,4 @@
+import { useTranslation } from '@/contexts/language';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Select } from 'radix-ui';
 import {
@@ -7,7 +8,6 @@ import {
   LuPlay,
   LuRadio,
 } from 'react-icons/lu/index';
-
 import {
   Modal,
   ModalDescription,
@@ -15,15 +15,12 @@ import {
   ModalTitle,
 } from '@/components/modal';
 import { Slider } from '@/components/slider';
-
 import styles from './radio.module.css';
-
 interface RadioProps {
   onClose: () => void;
   onPlayingChange: (playing: boolean) => void;
   show: boolean;
 }
-
 interface Station {
   id: string;
   image: string;
@@ -31,7 +28,6 @@ interface Station {
   stream: string;
   website: string;
 }
-
 interface StationRecord {
   codec?: unknown;
   favicon?: unknown;
@@ -42,25 +38,20 @@ interface StationRecord {
   tags?: unknown;
   url_resolved?: unknown;
 }
-
 const genres = ['ambient', 'chillout', 'lofi', 'jazz', 'classical'];
 const endpoint = 'https://all.api.radio-browser.info/json/stations/search';
 const excludedTags = /\b(news|talk|podcast|sports|religion)\b/i;
-
 function isHttpsUrl(value: unknown): value is string {
   if (typeof value !== 'string') return false;
-
   try {
     return new URL(value).protocol === 'https:';
   } catch {
     return false;
   }
 }
-
 function isSomaFm(value: string) {
   return /(^|[/.])somafm\.com\b|\bsomafm\b/i.test(value);
 }
-
 function toStation(record: StationRecord): Station | null {
   if (
     typeof record.stationuuid !== 'string' ||
@@ -77,7 +68,6 @@ function toStation(record: StationRecord): Station | null {
   ) {
     return null;
   }
-
   return {
     id: record.stationuuid,
     image:
@@ -89,7 +79,6 @@ function toStation(record: StationRecord): Station | null {
     website: isHttpsUrl(record.homepage) ? record.homepage : '',
   };
 }
-
 async function loadStations(signal: AbortSignal): Promise<Station[]> {
   const results = await Promise.allSettled(
     genres.map(async genre => {
@@ -100,13 +89,14 @@ async function loadStations(signal: AbortSignal): Promise<Station[]> {
         reverse: 'true',
         limit: '40',
       });
-      const response = await fetch(`${endpoint}?${params}`, { signal });
+      const response = await fetch(`${endpoint}?${params}`, {
+        signal,
+      });
       if (!response.ok) throw new Error('Could not load stations');
       const data: unknown = await response.json();
       return Array.isArray(data) ? (data as StationRecord[]) : [];
     }),
   );
-
   const stations = new Map<string, Station>();
   for (const result of results) {
     if (result.status !== 'fulfilled') continue;
@@ -116,11 +106,10 @@ async function loadStations(signal: AbortSignal): Promise<Station[]> {
         stations.set(station.id, station);
     }
   }
-
   return [...stations.values()].slice(0, 60);
 }
-
 export function RadioModal({ onClose, onPlayingChange, show }: RadioProps) {
+  const t = useTranslation();
   const [stations, setStations] = useState<Station[]>([]);
   const [selectedId, setSelectedId] = useState('');
   const [volume, setVolume] = useState(60);
@@ -134,19 +123,15 @@ export function RadioModal({ onClose, onPlayingChange, show }: RadioProps) {
   const [selectOpen, setSelectOpen] = useState(false);
   const audioRef = useRef<HTMLAudioElement>(null);
   const selectPortalRef = useRef<HTMLDivElement>(null);
-
   const selectedStation = useMemo(
     () => stations.find(station => station.id === selectedId) ?? stations[0],
     [stations, selectedId],
   );
-
   useEffect(() => {
     if (!show || stations.length > 0) return;
-
     const controller = new AbortController();
     setLoading(true);
     setLoadError(false);
-
     loadStations(controller.signal)
       .then(result => {
         if (controller.signal.aborted) return;
@@ -160,20 +145,15 @@ export function RadioModal({ onClose, onPlayingChange, show }: RadioProps) {
       .finally(() => {
         if (!controller.signal.aborted) setLoading(false);
       });
-
     return () => controller.abort();
   }, [show, stations.length, retryKey]);
-
   useEffect(() => {
     if (audioRef.current) audioRef.current.volume = volume / 100;
   }, [volume, selectedStation]);
-
   useEffect(() => () => audioRef.current?.pause(), []);
-
   useEffect(() => {
     if (!show) setSelectOpen(false);
   }, [show]);
-
   const changeStation = (id: string) => {
     audioRef.current?.pause();
     setPlaying(false);
@@ -183,16 +163,13 @@ export function RadioModal({ onClose, onPlayingChange, show }: RadioProps) {
     setImageError(false);
     setSelectedId(id);
   };
-
   const togglePlayback = async () => {
     const audio = audioRef.current;
     if (!audio) return;
-
     if (!audio.paused) {
       audio.pause();
       return;
     }
-
     setPlaybackError(false);
     setBuffering(true);
     try {
@@ -202,7 +179,6 @@ export function RadioModal({ onClose, onPlayingChange, show }: RadioProps) {
       setPlaybackError(true);
     }
   };
-
   return (
     <Modal
       persist
@@ -213,8 +189,10 @@ export function RadioModal({ onClose, onPlayingChange, show }: RadioProps) {
     >
       <ModalHeader>
         <div>
-          <ModalTitle>Music Radio</ModalTitle>
-          <ModalDescription>Live stations for focus and calm.</ModalDescription>
+          <ModalTitle>{t('Music Radio')}</ModalTitle>
+          <ModalDescription>
+            {t('Live stations for focus and calm.')}
+          </ModalDescription>
         </div>
       </ModalHeader>
 
@@ -224,15 +202,15 @@ export function RadioModal({ onClose, onPlayingChange, show }: RadioProps) {
           <div className={styles.loadingText}>
             <span />
             <span />
-            <p>Finding music stations…</p>
+            <p>{t('Finding music stations…')}</p>
           </div>
         </div>
       ) : loadError ? (
         <div className={styles.empty} role="alert">
           <LuRadio />
-          <p>Stations are unavailable right now.</p>
+          <p>{t('Stations are unavailable right now.')}</p>
           <button type="button" onClick={() => setRetryKey(key => key + 1)}>
-            Try again
+            {t('Try again')}
           </button>
         </div>
       ) : selectedStation ? (
@@ -251,7 +229,7 @@ export function RadioModal({ onClose, onPlayingChange, show }: RadioProps) {
             </div>
             <div className={styles.stationDetails}>
               <span className={styles.liveLabel}>
-                <span className={styles.liveDot} /> Live Radio
+                <span className={styles.liveDot} /> {t('Live Radio')}
               </span>
               <h3>{selectedStation.name}</h3>
               {selectedStation.website && (
@@ -260,7 +238,7 @@ export function RadioModal({ onClose, onPlayingChange, show }: RadioProps) {
                   target="_blank"
                   rel="noopener noreferrer"
                 >
-                  Visit station <LuExternalLink aria-hidden="true" />
+                  {t('Visit station')} <LuExternalLink aria-hidden="true" />
                 </a>
               )}
             </div>
@@ -268,7 +246,7 @@ export function RadioModal({ onClose, onPlayingChange, show }: RadioProps) {
 
           <div className={styles.field}>
             <span id="music-radio-station-label" className={styles.fieldLabel}>
-              Station
+              {t('Station')}
             </span>
             <Select.Root
               value={selectedStation.id}
@@ -310,25 +288,27 @@ export function RadioModal({ onClose, onPlayingChange, show }: RadioProps) {
                 </Select.Content>
               </Select.Portal>
             </Select.Root>
-            <small>{stations.length} music stations available</small>
+            <small>
+              {stations.length} {t('music stations available')}
+            </small>
           </div>
 
           <div className={styles.controls}>
             <button
               className={styles.playButton}
               type="button"
-              aria-label={playing ? 'Pause radio' : 'Play radio'}
+              aria-label={playing ? t('Pause radio') : t('Play radio')}
               onClick={togglePlayback}
             >
               {playing ? <LuPause /> : <LuPlay />}
             </button>
             <div className={styles.volume}>
               <div className={styles.volumeLabel}>
-                <span>Volume</span>
+                <span>{t('Volume')}</span>
                 <span>{volume}%</span>
               </div>
               <Slider
-                ariaLabel="Radio volume"
+                ariaLabel={t('Radio volume')}
                 value={volume}
                 onChange={setVolume}
               />
@@ -337,12 +317,12 @@ export function RadioModal({ onClose, onPlayingChange, show }: RadioProps) {
 
           <p className={styles.status} role="status" aria-live="polite">
             {playbackError
-              ? 'This stream could not play. Try another station.'
+              ? t('This stream could not play. Try another station.')
               : buffering
-                ? 'Connecting to station…'
+                ? t('Connecting to station…')
                 : playing
-                  ? 'Playing live radio'
-                  : 'Ready to play'}
+                  ? t('Playing live radio')
+                  : t('Ready to play')}
           </p>
 
           <audio
@@ -371,7 +351,7 @@ export function RadioModal({ onClose, onPlayingChange, show }: RadioProps) {
       ) : null}
 
       <p className={styles.credit}>
-        Stations from{' '}
+        {t('Stations from')}{' '}
         <a
           href="https://www.radio-browser.info/"
           target="_blank"
@@ -379,7 +359,7 @@ export function RadioModal({ onClose, onPlayingChange, show }: RadioProps) {
         >
           Radio Browser
         </a>
-        . Playback continues when this window is closed.
+        {t('. Playback continues when this window is closed.')}
       </p>
     </Modal>
   );

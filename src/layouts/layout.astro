@@ -1,5 +1,7 @@
 ---
 import { pwaInfo } from 'virtual:pwa-info'; // eslint-disable-line
+import Analytics from '@vercel/analytics/astro';
+import { createTranslator, type Locale } from '@/lib/i18n';
 
 import { Reload } from '@/components/reload';
 
@@ -8,24 +10,34 @@ import { count } from '@/lib/sounds';
 import '@/styles/global.css';
 
 interface Props {
+  locale?: Locale;
   description?: string;
   title?: string;
 }
 
+const { locale = 'vi' } = Astro.props;
+const t = createTranslator(locale);
 const title =
   Astro.props.title ||
-  'Focus by The Work Docs — Ambient sounds for focus and calm';
+  t('Focus by The Work Docs — Ambient sounds for focus and calm');
 const canonicalUrl = new URL(Astro.url.pathname, Astro.site);
-const imageUrl = new URL('/og.png?v=garden', Astro.site);
-const imageAlt =
-  'Focus by The Work Docs — A little space to find your focus, above a peaceful illustrated garden.';
+const imageUrl = new URL(
+  locale === 'vi' ? '/og-vi.png?v=vi-1' : '/og.png?v=en-1',
+  Astro.site,
+);
+const imageAlt = t(
+  'Focus by The Work Docs — A little space to find your focus, above a peaceful illustrated garden.',
+);
 const description =
   Astro.props.description ||
-  `Find your focus with The Work Docs. Mix ${count()} ambient sounds, set a focus timer, and keep your notes close. Free and open-source.`;
+  t(
+    'Find your focus with The Work Docs. Mix {count} ambient sounds, set a focus timer, and keep your notes close. Free and open-source.',
+    { count: count() },
+  );
 ---
 
 <!doctype html>
-<html lang="en">
+<html lang={locale}>
   <head>
     <meta charset="UTF-8" />
     <meta content="width=device-width" name="viewport" />
@@ -56,6 +68,9 @@ const description =
     <link rel="preload" href="/fonts/SNPro-Latin.woff2" as="font" type="font/woff2" crossorigin />
 
     <link rel="canonical" href={canonicalUrl} />
+    <link rel="alternate" hreflang="vi" href={new URL('/', Astro.site)} />
+    <link rel="alternate" hreflang="en" href={new URL('/en/', Astro.site)} />
+    <link rel="alternate" hreflang="x-default" href={new URL('/', Astro.site)} />
     <title>{title}</title>
     <meta content={title} name="title" />
     <meta content={description} name="description" />
@@ -68,6 +83,8 @@ const description =
     <meta content="Focus by The Work Docs" property="og:site_name" />
     <meta content={canonicalUrl} property="og:url" />
     <meta content="website" property="og:type" />
+    <meta content={locale === 'vi' ? 'vi_VN' : 'en_US'} property="og:locale" />
+    <meta content={locale === 'vi' ? 'en_US' : 'vi_VN'} property="og:locale:alternate" />
     <meta content={imageUrl} property="og:image" />
     <meta content="image/png" property="og:image:type" />
     <meta content="1200" property="og:image:width" />
@@ -85,6 +102,7 @@ const description =
   <body>
     <slot />
 
-    <Reload client:load />
+    <Reload locale={locale} client:load />
+    <Analytics />
   </body>
 </html>

@@ -1,4 +1,11 @@
 ---
+import { createTranslator, type Locale } from '@/lib/i18n';
+interface Props {
+  locale?: Locale;
+}
+const { locale = 'vi' } = Astro.props;
+const t = createTranslator(locale);
+
 import { BsArrowUpRight } from 'react-icons/bs/index';
 import { Container } from './container';
 ---
@@ -8,16 +15,16 @@ import { Container } from './container';
     <div class="intro">
       <div class="copy">
         <h2 id="workdocs-title">The Work Docs</h2>
-        <p>Read PDFs, ask questions, and keep your notes together.</p>
+        <p>{t('Read PDFs, ask questions, and keep your notes together.')}</p>
       </div>
       <a
-        aria-label="Explore The Work Docs (opens in a new tab)"
+        aria-label={t('Explore The Work Docs (opens in a new tab)')}
         class="action"
         href="https://www.theworkdocs.com/"
         rel="noopener noreferrer"
         target="_blank"
       >
-        Explore The Work Docs <BsArrowUpRight aria-hidden="true" />
+        {t('Explore The Work Docs')} <BsArrowUpRight aria-hidden="true" />
       </a>
     </div>
   </Container>

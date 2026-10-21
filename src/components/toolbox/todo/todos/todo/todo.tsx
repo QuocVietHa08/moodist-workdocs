@@ -1,3 +1,4 @@
+import { useTranslation } from '@/contexts/language';
 import { FaRegTrashAlt } from 'react-icons/fa/index';
 
 import { Checkbox } from '@/components/checkbox';
@@ -14,6 +15,7 @@ interface TodoProps {
 }
 
 export function Todo({ done, id, todo }: TodoProps) {
+  const t = useTranslation();
   const deleteTodo = useTodoStore(state => state.deleteTodo);
   const toggleTodo = useTodoStore(state => state.toggleTodo);
   const editTodo = useTodoStore(state => state.editTodo);
@@ -25,20 +27,27 @@ export function Todo({ done, id, todo }: TodoProps) {
     <div className={styles.wrapper}>
       <div className={styles.checkbox}>
         <Checkbox
-          aria-label={`Mark ${todo || 'task'} as ${done ? 'incomplete' : 'complete'}`}
+          aria-label={t('Mark {task} as {state}', {
+            task: todo || t('task'),
+            state: t(done ? 'incomplete' : 'complete'),
+          })}
           checked={done}
           onChange={handleCheck}
         />
       </div>
       <input
-        aria-label={`Edit task: ${todo || 'Untitled task'}`}
+        aria-label={t('Edit task: {task}', {
+          task: todo || t('Untitled task'),
+        })}
         className={cn(styles.textbox, done && styles.done)}
         type="text"
         value={todo}
         onChange={e => editTodo(id, e.target.value)}
       />
       <button
-        aria-label={`Delete task: ${todo || 'Untitled task'}`}
+        aria-label={t('Delete task: {task}', {
+          task: todo || t('Untitled task'),
+        })}
         className={styles.delete}
         onClick={handleDelete}
         type="button"

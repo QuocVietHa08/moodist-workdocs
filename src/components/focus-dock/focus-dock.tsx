@@ -1,3 +1,4 @@
+import { useTranslation } from '@/contexts/language';
 import {
   MdNotes,
   MdOutlineAvTimer,
@@ -10,7 +11,6 @@ import type { FocusTool } from '@/constants/events';
 import { formatPomodoroTime, usePomodoroStore } from '@/stores/pomodoro';
 import { Portal } from '@/components/portal';
 import styles from './focus-dock.module.css';
-
 const tools = [
   {
     id: 'pomodoro',
@@ -18,8 +18,18 @@ const tools = [
     shortLabel: 'Focus',
     Icon: MdOutlineAvTimer,
   },
-  { id: 'notepad', label: 'Notepad', shortLabel: 'Notes', Icon: MdNotes },
-  { id: 'todo', label: 'To-do list', shortLabel: 'Tasks', Icon: MdTaskAlt },
+  {
+    id: 'notepad',
+    label: 'Notepad',
+    shortLabel: 'Notes',
+    Icon: MdNotes,
+  },
+  {
+    id: 'todo',
+    label: 'To-do list',
+    shortLabel: 'Tasks',
+    Icon: MdTaskAlt,
+  },
   {
     id: 'flowmodoro',
     label: 'Flowmodoro',
@@ -39,14 +49,13 @@ const tools = [
     Icon: IoMdFlower,
   },
 ] as const;
-
 interface FocusDockProps {
   active?: FocusTool;
   onOpen: (tool: FocusTool) => void;
   onClose: () => void;
 }
-
 export function FocusDock({ active, onOpen, onClose }: FocusDockProps) {
+  const t = useTranslation();
   const running = usePomodoroStore(state => state.running);
   const remaining = usePomodoroStore(state => state.remaining);
   const pause = usePomodoroStore(state => state.pause);
@@ -54,41 +63,40 @@ export function FocusDock({ active, onOpen, onClose }: FocusDockProps) {
   const duration = usePomodoroStore(state => state.durations[state.mode]);
   const hasSession = running || remaining < duration;
   const timerAction = running
-    ? 'Pause'
+    ? t('Pause')
     : remaining === 0
-      ? 'Restart'
-      : 'Resume';
-
+      ? t('Restart')
+      : t('Resume');
   return (
     <Portal>
-      <aside aria-label="Quick tools" className={styles.dock}>
+      <aside aria-label={t('Quick tools')} className={styles.dock}>
         {hasSession && (
           <button
-            aria-label={`${timerAction} focus timer`}
+            aria-label={t('{action} focus timer', { action: timerAction })}
             className={styles.time}
             onClick={running ? pause : start}
             type="button"
           >
             {formatPomodoroTime(remaining)}
-            <span>{timerAction}</span>
+            <span>{t(timerAction)}</span>
           </button>
         )}
-        <nav aria-label="Focus tools" className={styles.icons}>
+        <nav aria-label={t('Focus tools')} className={styles.icons}>
           {tools.map(({ id, label, shortLabel, Icon }) => (
             <button
-              aria-label={label}
+              aria-label={t(label)}
               aria-expanded={active === id}
               aria-controls={active === id ? 'focus-tool-panel' : undefined}
               aria-pressed={active === id}
               className={styles.icon}
               key={id}
               onClick={() => (active === id ? onClose() : onOpen(id))}
-              title={label}
+              title={t(label)}
               type="button"
             >
               <Icon aria-hidden="true" />
               <span aria-hidden="true" className={styles.caption}>
-                {shortLabel}
+                {t(shortLabel)}
               </span>
               {id === 'pomodoro' && running && (
                 <span aria-hidden="true" className={styles.dot} />

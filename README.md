@@ -13,6 +13,8 @@ time for focused work, and keep your notes and next steps close.
 
 ## Features
 
+- **Vietnamese by default**, with an English version at `/en/` and a VI/EN switch
+  at the top of the page. Both versions share the same browser storage.
 - **84 ambient sounds** from nature, rain, animals, places, and more. Layer sounds
   and adjust their volume to build your own soundscape.
 - **Ready-made and saved mixes**, favorites, sound search, and shareable mix links.
@@ -117,8 +119,9 @@ address. Update it if you deploy under a different domain.
 | `src/layouts/layout.astro` | Page metadata, canonical URL, and OG/Twitter tags. |
 | `public/images/hero/` | Responsive day and dusk garden images. |
 | `public/fonts/` | Locally served font files. |
-| `public/og.png` | 1200 × 630 social preview image. |
-| `assets/og.svg` | SVG source for the social preview image. |
+| `public/og-vi.png` | Default Vietnamese social preview, 1200 × 630. |
+| `public/og.png` | English social preview for `/en/`, 1200 × 630. |
+| `assets/og.svg`, `assets/og-vi.svg` | SVG sources for both social previews. |
 | `tests/pomodoro.test.mjs` | Pomodoro timing regression tests. |
 
 ## Contributing
@@ -133,6 +136,9 @@ website links, and the persistent focus-tool dock.
 
 The code is licensed under the [MIT License](LICENSE). The original copyright
 notice is retained in `LICENSE`.
+
+The locally served SN Pro font includes Vietnamese glyphs and is distributed
+under the [SIL Open Font License](public/fonts/OFL.txt).
 
 Some audio assets have separate licenses:
 

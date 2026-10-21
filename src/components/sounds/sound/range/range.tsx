@@ -1,3 +1,4 @@
+import { useTranslation } from '@/contexts/language';
 import { useSoundStore } from '@/stores/sound';
 import type { CSSProperties } from 'react';
 
@@ -9,6 +10,7 @@ interface RangeProps {
 }
 
 export function Range({ id, label }: RangeProps) {
+  const t = useTranslation();
   const setVolume = useSoundStore(state => state.setVolume);
   const volume = useSoundStore(state => state.sounds[id].volume);
   const isSelected = useSoundStore(state => state.sounds[id].isSelected);
@@ -16,7 +18,7 @@ export function Range({ id, label }: RangeProps) {
 
   return (
     <input
-      aria-label={`${label} sound volume`}
+      aria-label={t('{label} sound volume', { label: t(label) })}
       aria-valuetext={`${Math.round(volume * 100)}%`}
       autoComplete="off"
       className={styles.range}

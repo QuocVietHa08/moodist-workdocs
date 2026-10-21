@@ -1,4 +1,11 @@
 ---
+import { createTranslator, type Locale } from '@/lib/i18n';
+interface Props {
+  locale?: Locale;
+}
+const { locale = 'vi' } = Astro.props;
+const t = createTranslator(locale);
+
 import { BsSoundwave } from 'react-icons/bs/index';
 
 import { Container } from './container';
@@ -8,6 +15,10 @@ const count = soundCount();
 ---
 
 <section aria-labelledby="hero-title" class="hero">
+  <nav aria-label={t('Language')} class="language-switch">
+    <a href="/" lang="vi" hreflang="vi" aria-current={locale === 'vi' ? 'page' : undefined}>VI</a>
+    <a href="/en/" lang="en" hreflang="en" aria-current={locale === 'en' ? 'page' : undefined}>EN</a>
+  </nav>
   <div aria-hidden="true" class="landscape"></div>
   <div aria-hidden="true" class="wash"></div>
 
@@ -15,20 +26,20 @@ const count = soundCount();
     <div class="wrapper">
       <div class="brand">
         <BsSoundwave aria-hidden="true" />
-        <span>Focus by <a href="https://www.theworkdocs.com/" target="_blank" rel="noopener noreferrer" aria-label="The Work Docs (opens in a new tab)">The Work Docs</a></span>
+        <span>{t('Focus by ')}<a href="https://www.theworkdocs.com/" target="_blank" rel="noopener noreferrer" aria-label={t('The Work Docs (opens in a new tab)')}>The Work Docs</a></span>
       </div>
       <h1 id="hero-title" class="title">
-        A little space<br />to find your focus.
+        {t('A little space')}<br />{t('to find your focus.')}
       </h1>
       <p class="desc">
-        Read deeply. Work gently. Take a breath.<br />
-        Your favorite sounds, together in one calm space.
+        {t('Read deeply. Work gently. Take a breath.')}<br />
+        {t('Your favorite sounds, together in one calm space.')}
       </p>
       <div class="actions">
-        <a class="button" href="#app">Find your sounds</a>
-        <a class="tools-link" href="https://www.theworkdocs.com/" target="_blank" rel="noopener noreferrer" aria-label="Explore The Work Docs (opens in a new tab)">Explore The Work Docs</a>
+        <a class="button" href="#app">{t('Find your sounds')}</a>
+        <a class="tools-link" href="https://www.theworkdocs.com/" target="_blank" rel="noopener noreferrer" aria-label={t('Explore The Work Docs (opens in a new tab)')}>{t('Explore The Work Docs')}</a>
       </div>
-      <p class="sounds">{count} ambient sounds. Free and open-source.</p>
+      <p class="sounds">{t('{count} ambient sounds. Free and open-source.', { count })}</p>
     </div>
   </Container>
 </section>
@@ -41,6 +52,36 @@ const count = soundCount();
     color: var(--color-foreground);
     text-align: center;
     background: var(--color-background);
+  }
+
+  .language-switch {
+    position: absolute;
+    top: 16px;
+    right: 20px;
+    display: flex;
+    gap: 2px;
+    padding: 3px;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 100px;
+    font-size: 12px;
+  }
+  .language-switch a {
+    display: grid;
+    place-items: center;
+    min-width: 36px;
+    min-height: 32px;
+    color: var(--color-foreground-subtle);
+    text-decoration: none;
+    border-radius: 100px;
+  }
+  .language-switch a[aria-current='page'] {
+    color: var(--color-accent);
+    background: var(--color-selected-surface);
+  }
+  .language-switch a:focus-visible {
+    outline: 2px solid var(--color-focus);
+    outline-offset: 2px;
   }
 
   .landscape,
@@ -194,7 +235,7 @@ const count = soundCount();
 
   @media (width <= 600px) {
     .wrapper {
-      padding: 32px 0 180px;
+      padding: 72px 0 180px;
     }
 
     .brand {

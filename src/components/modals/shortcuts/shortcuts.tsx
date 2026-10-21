@@ -1,13 +1,12 @@
+import { useTranslation } from '@/contexts/language';
 import { Modal, ModalHeader, ModalTitle } from '@/components/modal';
-
 import styles from './shortcuts.module.css';
-
 interface ShortcutsModalProps {
   onClose: () => void;
   show: boolean;
 }
-
 export function ShortcutsModal({ onClose, show }: ShortcutsModalProps) {
+  const t = useTranslation();
   const shortcuts = [
     {
       keys: ['Ctrl/⌘', 'K'],
@@ -66,11 +65,10 @@ export function ShortcutsModal({ onClose, show }: ShortcutsModalProps) {
       label: 'Unselect All Sounds',
     },
   ];
-
   return (
     <Modal show={show} onClose={onClose}>
       <ModalHeader>
-        <ModalTitle>Keyboard Shortcuts</ModalTitle>
+        <ModalTitle>{t('Keyboard Shortcuts')}</ModalTitle>
       </ModalHeader>
       <div className={styles.shortcuts}>
         {shortcuts.map(shortcut => (
@@ -84,16 +82,15 @@ export function ShortcutsModal({ onClose, show }: ShortcutsModalProps) {
     </Modal>
   );
 }
-
 interface RowProps {
   keys: Array<string>;
   label: string;
 }
-
 function Row({ keys, label }: RowProps) {
+  const t = useTranslation();
   return (
     <div className={styles.row}>
-      <p className={styles.label}>{label}</p>
+      <p className={styles.label}>{t(label)}</p>
       <div className={styles.divider} />
       <div className={styles.keys}>
         {keys.map(key => (
@@ -103,11 +100,9 @@ function Row({ keys, label }: RowProps) {
     </div>
   );
 }
-
 interface KeyProps {
   children: React.ReactNode;
 }
-
 function Key({ children }: KeyProps) {
   return <div className={styles.key}>{children}</div>;
 }

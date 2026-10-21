@@ -21,3 +21,10 @@ test('search accepts accents, case and multiple words in any order', () => {
   );
   assert.equal(filterSound('cafe', '', ['Café', 'Places']), 1);
 });
+
+test('Vietnamese search accepts missing accents and the letter đ', () => {
+  assert.equal(filterSound('heavy-rain', 'mua lon', ['Mưa lớn', 'Mưa']), 1);
+  assert.equal(filterSound('crowd', 'dam dong', ['Đám đông', 'Thành phố']), 1);
+  assert.equal(filterSound('light-rain', 'MƯA NHẸ', ['Mưa nhẹ', 'Mưa']), 1);
+  assert.equal(filterSound('campfire', 'mua', ['Lửa trại', 'Thiên nhiên']), 0);
+});

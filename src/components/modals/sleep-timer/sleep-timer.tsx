@@ -1,5 +1,5 @@
+import { useTranslation } from '@/contexts/language';
 import { useEffect, useState, useRef, useMemo } from 'react';
-
 import {
   Modal,
   ModalActions,
@@ -13,73 +13,56 @@ import { dispatch } from '@/lib/event';
 import { useSoundStore } from '@/stores/sound';
 import { FADE_OUT } from '@/constants/events';
 import { useSleepTimerStore } from '@/stores/sleep-timer';
-
 import styles from './sleep-timer.module.css';
-
 interface SleepTimerModalProps {
   onClose: () => void;
   show: boolean;
 }
-
 export function SleepTimerModal({ onClose, show }: SleepTimerModalProps) {
+  const t = useTranslation();
   const setActive = useSleepTimerStore(state => state.set);
   const noSelected = useSoundStore(state => state.noSelected());
-
   const [running, setRunning] = useState(false);
-
   useEffect(() => setActive(running), [running, setActive]);
-
   const [hours, setHours] = useState<string>('0');
   const [minutes, setMinutes] = useState<string>('10');
-
   const totalSeconds = useMemo(
     () =>
       (hours === '' ? 0 : Number.parseInt(hours, 10)) * 3600 +
       (minutes === '' ? 0 : Number.parseInt(minutes, 10)) * 60,
     [hours, minutes],
   );
-
   const [timeSpent, setTimeSpent] = useState(0);
-
   const timeLeft = useMemo(
     () => totalSeconds - timeSpent,
     [totalSeconds, timeSpent],
   );
-
   const timerId = useRef<ReturnType<typeof setInterval> | null>(null);
-
   const isPlaying = useSoundStore(state => state.isPlaying);
   const play = useSoundStore(state => state.play);
   const pause = useSoundStore(state => state.pause);
-
   const handleStart = () => {
     if (timerId.current) clearInterval(timerId.current);
     if (noSelected) return;
     if (!isPlaying) play();
-
     if (totalSeconds > 0) {
       setRunning(true);
-
       const newTimerId = setInterval(() => {
         setTimeSpent(prev => prev + 1);
       }, 1000);
-
       timerId.current = newTimerId;
     }
   };
-
   useEffect(() => {
     if (timeLeft === 0) {
       setRunning(false);
-
-      dispatch(FADE_OUT, { duration: 1000 });
-
+      dispatch(FADE_OUT, {
+        duration: 1000,
+      });
       setTimeSpent(0);
-
       if (timerId.current) clearInterval(timerId.current);
     }
   }, [timeLeft, pause]);
-
   const handleReset = () => {
     if (timerId.current) clearInterval(timerId.current);
     setTimeSpent(0);
@@ -87,20 +70,17 @@ export function SleepTimerModal({ onClose, show }: SleepTimerModalProps) {
     setMinutes('10');
     setRunning(false);
   };
-
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-
     handleStart();
   };
-
   return (
     <Modal show={show} onClose={onClose}>
       <ModalHeader>
         <div>
-          <ModalTitle>Sleep Timer</ModalTitle>
+          <ModalTitle>{t('Sleep Timer')}</ModalTitle>
           <ModalDescription>
-            Stop sounds after a certain amount of time.
+            {t('Stop sounds after a certain amount of time.')}
           </ModalDescription>
         </div>
       </ModalHeader>
@@ -109,11 +89,15 @@ export function SleepTimerModal({ onClose, show }: SleepTimerModalProps) {
         <div className={styles.controls}>
           <div className={styles.inputs}>
             {!running && (
-              <Field label="Hours" value={hours} onChange={setHours} />
+              <Field label={t('Hours')} value={hours} onChange={setHours} />
             )}
 
             {!running && (
-              <Field label="Minutes" value={minutes} onChange={setMinutes} />
+              <Field
+                label={t('Minutes')}
+                value={minutes}
+                onChange={setMinutes}
+              />
             )}
           </div>
 
@@ -122,13 +106,13 @@ export function SleepTimerModal({ onClose, show }: SleepTimerModalProps) {
           <ModalActions>
             {running && (
               <ModalButton type="button" onClick={handleReset}>
-                Reset
+                {t('Reset')}
               </ModalButton>
             )}
 
             {!running && (
               <ModalButton variant="primary" type="submit">
-                Start
+                {t('Start')}
               </ModalButton>
             )}
           </ModalActions>
@@ -137,18 +121,17 @@ export function SleepTimerModal({ onClose, show }: SleepTimerModalProps) {
     </Modal>
   );
 }
-
 interface FieldProps {
   label: string;
   onChange: (value: string) => void;
   value: string;
 }
-
 function Field({ label, onChange, value }: FieldProps) {
+  const t = useTranslation();
   return (
     <div className={styles.field}>
       <label className={styles.label} htmlFor={label.toLocaleLowerCase()}>
-        {label}
+        {t(label)}
       </label>
       <input
         className={styles.input}

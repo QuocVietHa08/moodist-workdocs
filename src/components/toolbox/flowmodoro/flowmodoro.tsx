@@ -1,31 +1,27 @@
+import { useTranslation } from '@/contexts/language';
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { FaUndo, FaPlay, FaPause, FaCheck } from 'react-icons/fa/index';
 import { IoMdSettings } from 'react-icons/io/index';
-
 import { Modal, ModalTitle } from '@/components/modal';
 import { Button } from '../generics/button';
 import { Timer } from './timer';
 import { Tabs } from './tabs';
 import { Setting } from './setting';
-
 import { useLocalStorage } from '@/hooks/use-local-storage';
 import { useSoundEffect } from '@/hooks/use-sound-effect';
 import { useFlowmodoroStore } from '@/stores/flowmodoro';
 import { useSettingsStore } from '@/stores/settings';
 import { useCloseListener } from '@/hooks/use-close-listener';
 import { createSessionClock } from '@/lib/session-clock';
-
 import styles from './flowmodoro.module.css';
-
 interface FlowmodoroProps {
   onClose: () => void;
   open: () => void;
   show: boolean;
 }
-
 export function Flowmodoro({ onClose, open, show }: FlowmodoroProps) {
+  const t = useTranslation();
   const [showSetting, setShowSetting] = useState(false);
-
   const [selectedTab, setSelectedTab] = useState<'flowmodoro' | 'break'>(
     'flowmodoro',
   );
@@ -33,39 +29,41 @@ export function Flowmodoro({ onClose, open, show }: FlowmodoroProps) {
     flowmodoro: createSessionClock('up'),
     break: createSessionClock('down'),
   }));
-
   const running = useFlowmodoroStore(state => state.running);
   const setRunning = useFlowmodoroStore(state => state.setRunning);
-
   const [focusSeconds, setFocusSeconds] = useState(0);
   const [breakSeconds, setBreakSeconds] = useState(0);
   const timer = selectedTab === 'break' ? breakSeconds : focusSeconds;
   const alarmVolume = useSettingsStore(state => state.alarmVolume);
-
   const alarm = useSoundEffect('/sounds/alarm.mp3', alarmVolume);
-
-  const defaultBreakPercentage = useMemo(() => ({ break: 20 }), []);
-
+  const defaultBreakPercentage = useMemo(
+    () => ({
+      break: 20,
+    }),
+    [],
+  );
   const [breakPercentage, setBreakPercentage] = useLocalStorage<
     Record<string, number>
   >('moodist-flowmodoro-setting', defaultBreakPercentage);
   const [breakDuration, setBreakDuration] = useState(0);
-
   const [completions, setCompletions] = useState<Record<string, number>>({
     flowmodoro: 0,
     break: 0,
   });
-
   const tabs = useMemo(
     () => [
-      { id: 'flowmodoro', label: 'Flowmodoro' },
-      { id: 'break', label: 'Break' },
+      {
+        id: 'flowmodoro',
+        label: 'Flowmodoro',
+      },
+      {
+        id: 'break',
+        label: 'Break',
+      },
     ],
     [],
   );
-
   useCloseListener(() => setShowSetting(false));
-
   const updateClock = useCallback(
     (pause = false) => {
       const clock = clocks[selectedTab];
@@ -84,7 +82,6 @@ export function Flowmodoro({ onClose, open, show }: FlowmodoroProps) {
     },
     [clocks, selectedTab, setRunning, alarm],
   );
-
   useEffect(() => {
     if (!running) return;
     clocks[selectedTab].start();
@@ -92,13 +89,11 @@ export function Flowmodoro({ onClose, open, show }: FlowmodoroProps) {
     const interval = setInterval(update, 250);
     document.addEventListener('visibilitychange', update);
     update();
-
     return () => {
       clearInterval(interval);
       document.removeEventListener('visibilitychange', update);
     };
   }, [running, selectedTab, clocks, updateClock]);
-
   const selectTab = (tab: string) => {
     if (tab === selectedTab || (tab !== 'flowmodoro' && tab !== 'break'))
       return;
@@ -106,7 +101,6 @@ export function Flowmodoro({ onClose, open, show }: FlowmodoroProps) {
     setRunning(false);
     setSelectedTab(tab);
   };
-
   const toggleRunning = () => {
     if (running) {
       updateClock(true);
@@ -116,7 +110,6 @@ export function Flowmodoro({ onClose, open, show }: FlowmodoroProps) {
       setRunning(true);
     }
   };
-
   const finishFocus = () => {
     const { seconds } = clocks.flowmodoro.pause();
     if (seconds === 0) return;
@@ -136,7 +129,6 @@ export function Flowmodoro({ onClose, open, show }: FlowmodoroProps) {
     }));
     setSelectedTab('break');
   };
-
   const restart = () => {
     setRunning(false);
     if (selectedTab === 'break') {
@@ -147,17 +139,18 @@ export function Flowmodoro({ onClose, open, show }: FlowmodoroProps) {
       setFocusSeconds(0);
     }
   };
-
   return (
     <>
       <Modal docked show={show} onClose={onClose}>
         <header className={styles.header}>
-          <ModalTitle className={styles.title}>Flowmodoro timer</ModalTitle>
+          <ModalTitle className={styles.title}>
+            {t('Flowmodoro timer')}
+          </ModalTitle>
 
           <div className={styles.button}>
             <Button
               icon={<IoMdSettings />}
-              tooltip="Change break percentage"
+              tooltip={t('Change break percentage')}
               onClick={() => {
                 onClose();
                 setShowSetting(true);
@@ -171,19 +164,19 @@ export function Flowmodoro({ onClose, open, show }: FlowmodoroProps) {
 
         <div className={styles.control}>
           <p className={styles.completed}>
-            {completions[selectedTab] || 0} completed
+            {t('{count} completed', { count: completions[selectedTab] || 0 })}
           </p>
           <div className={styles.buttons}>
             <Button
               icon={<FaUndo />}
               smallIcon
-              tooltip="Restart"
+              tooltip={t('Restart')}
               onClick={restart}
             />
             <Button
               icon={running ? <FaPause /> : <FaPlay />}
               smallIcon
-              tooltip={running ? 'Pause' : 'Start'}
+              tooltip={running ? t('Pause') : t('Start')}
               disabled={selectedTab === 'break' && breakSeconds === 0}
               onClick={toggleRunning}
             />
@@ -191,7 +184,7 @@ export function Flowmodoro({ onClose, open, show }: FlowmodoroProps) {
               <Button
                 icon={<FaCheck />}
                 smallIcon
-                tooltip="Finish focus and prepare break"
+                tooltip={t('Finish focus and prepare break')}
                 disabled={focusSeconds === 0}
                 onClick={finishFocus}
               />

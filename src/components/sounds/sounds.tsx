@@ -1,3 +1,4 @@
+import { useTranslation } from '@/contexts/language';
 import {
   useState,
   useMemo,
@@ -7,71 +8,55 @@ import {
   useId,
 } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
-
 import { Sound } from './sound';
 import { useLocalStorage } from '@/hooks/use-local-storage';
 import { cn } from '@/helpers/styles';
 import { fade, scale, mix } from '@/lib/motion';
-
 import styles from './sounds.module.css';
-
 import type { Sounds } from '@/data/types';
-
 interface SoundsProps {
   functional: boolean;
   id: string;
   sounds: Sounds;
 }
-
 const DEFAULT_VISIBLE_SOUNDS = 9;
-
 export function Sounds({ functional, id, sounds }: SoundsProps) {
+  const t = useTranslation();
   const soundListId = useId();
   const [showAll, setShowAll] = useLocalStorage(`${id}-show-more`, false);
   const [clickedMore, setClickedMore] = useState(false);
-
   const firstNewSound = useRef<HTMLDivElement>(null);
-
   useEffect(() => {
     if (showAll && clickedMore) {
       firstNewSound.current?.querySelector('button')?.focus();
       setClickedMore(false);
     }
   }, [showAll, clickedMore]);
-
   const showMoreButton = useRef<HTMLButtonElement>(null);
-
   const [hiddenSelections, setHiddenSelections] = useState<{
     [key: string]: boolean;
   }>({});
-
   const hasHiddenSelection = useMemo(() => {
     const keys = Object.keys(hiddenSelections);
-
     return keys.some(key => hiddenSelections[key]);
   }, [hiddenSelections]);
-
   const selectHidden = useCallback((key: string) => {
     setHiddenSelections(prev => ({
       ...prev,
       [key]: true,
     }));
   }, []);
-
   const unselectHidden = useCallback((key: string) => {
     setHiddenSelections(prev => ({
       ...prev,
       [key]: false,
     }));
   }, []);
-
   const toggleMore = () => {
     setShowAll(prev => !prev);
     setClickedMore(true);
   };
-
   const variants = mix(fade(), scale(0.9));
-
   return (
     <div>
       <div className={styles.sounds} id={soundListId}>
@@ -114,7 +99,7 @@ export function Sounds({ functional, id, sounds }: SoundsProps) {
               key={showAll ? `${id}-show-less` : `${id}-show-more`}
               variants={variants}
             >
-              {showAll ? 'Show Less' : 'Show More'}
+              {showAll ? t('Show Less') : t('Show More')}
             </motion.span>
           </AnimatePresence>
         </button>

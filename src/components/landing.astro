@@ -1,0 +1,22 @@
+---
+import Layout from '@/layouts/layout.astro';
+import Hero from '@/components/hero.astro';
+import WorkdocsPromo from '@/components/workdocs-promo.astro';
+import Source from '@/components/source.astro';
+import Footer from '@/components/footer.astro';
+import { App } from '@/components/app';
+import type { Locale } from '@/lib/i18n';
+
+interface Props {
+  locale?: Locale;
+}
+const { locale = 'vi' } = Astro.props;
+---
+
+<Layout locale={locale}>
+  <Hero locale={locale} />
+  <WorkdocsPromo locale={locale} />
+  <App locale={locale} client:load />
+  <Source locale={locale} />
+  <Footer locale={locale} />
+</Layout>

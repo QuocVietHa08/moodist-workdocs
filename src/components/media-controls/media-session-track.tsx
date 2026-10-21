@@ -1,3 +1,4 @@
+import { useTranslation } from '@/contexts/language';
 import { useCallback, useEffect, useRef } from 'react';
 
 import { BrowserDetect } from '@/helpers/browser-detect';
@@ -19,6 +20,7 @@ const metadata: MediaMetadataInit = {
 };
 
 export function MediaSessionTrack() {
+  const t = useTranslation();
   const { isBrowser } = useSSR();
   const isPlaying = useSoundStore(state => state.isPlaying);
   const play = useSoundStore(state => state.play);
@@ -28,8 +30,11 @@ export function MediaSessionTrack() {
   useEffect(() => {
     if (!isBrowser || !isPlaying) return;
 
-    navigator.mediaSession.metadata = new MediaMetadata(metadata);
-  }, [isBrowser, isPlaying]);
+    navigator.mediaSession.metadata = new MediaMetadata({
+      ...metadata,
+      album: t(metadata.album || ''),
+    });
+  }, [isBrowser, isPlaying, t]);
 
   const startMasterAudio = useCallback(async () => {
     if (!masterAudioSoundRef.current) return;

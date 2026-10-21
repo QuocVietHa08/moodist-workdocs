@@ -1,32 +1,28 @@
+import { useTranslation } from '@/contexts/language';
 import { BiCoffee, BiHeadphone, BiMoon, BiPlay } from 'react-icons/bi/index';
-
 import { useSoundStore } from '@/stores/sound';
 import { OPEN_PRESETS } from '@/constants/events';
 import { dispatch } from '@/lib/event';
 import { findStarterMix, starterMixes } from '@/lib/starter-mixes';
-
 import styles from './starter-mixes.module.css';
-
 const icons = [BiHeadphone, BiCoffee, BiMoon];
-
 export function StarterMixes() {
+  const t = useTranslation();
   const override = useSoundStore(state => state.override);
   const play = useSoundStore(state => state.play);
   const locked = useSoundStore(state => state.locked);
   const active = useSoundStore(state => findStarterMix(state.sounds)?.id);
-
   const playMix = (sounds: Record<string, number>) => {
     if (locked) return;
     override(sounds, true);
     play();
   };
-
   return (
     <section aria-labelledby="starter-mixes-title" className={styles.wrapper}>
       <div className={styles.heading}>
-        <h3 id="starter-mixes-title">Start with a mix</h3>
+        <h3 id="starter-mixes-title">{t('Start with a mix')}</h3>
         <button onClick={() => dispatch(OPEN_PRESETS)} type="button">
-          Your saved mixes
+          {t('Your saved mixes')}
         </button>
       </div>
       <div className={styles.mixes}>
@@ -34,7 +30,7 @@ export function StarterMixes() {
           const Icon = icons[index];
           return (
             <button
-              aria-label={`Play ${mix.name} mix`}
+              aria-label={t('Play {name} mix', { name: t(mix.name) })}
               aria-pressed={active === mix.id}
               className={styles.mix}
               data-scene={mix.id}
@@ -47,8 +43,8 @@ export function StarterMixes() {
                 <Icon />
               </span>
               <span className={styles.text}>
-                <strong>{mix.name}</strong>
-                <span>{mix.description}</span>
+                <strong>{t(mix.name)}</strong>
+                <span>{t(mix.description)}</span>
               </span>
               <BiPlay aria-hidden="true" className={styles.play} />
             </button>

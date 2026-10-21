@@ -1,5 +1,5 @@
+import { useTranslation } from '@/contexts/language';
 import { useState, useEffect } from 'react';
-
 import {
   Modal,
   ModalActions,
@@ -8,18 +8,15 @@ import {
   ModalHeader,
   ModalTitle,
 } from '@/components/modal';
-
 import { useSoundStore } from '@/stores/sound';
 import { useSnackbar } from '@/contexts/snackbar';
 import { useCloseListener } from '@/hooks/use-close-listener';
 import { sounds } from '@/data/sounds';
-
 import styles from './shared.module.css';
-
 export function SharedModal() {
+  const t = useTranslation();
   const override = useSoundStore(state => state.override);
   const showSnackbar = useSnackbar();
-
   const [isOpen, setIsOpen] = useState(false);
   const [sharedSounds, setSharedSounds] = useState<
     Array<{
@@ -28,28 +25,23 @@ export function SharedModal() {
       volume: number;
     }>
   >([]);
-
   useEffect(() => {
     const searchParams = new URLSearchParams(window.location.search);
     const share = searchParams.get('share');
-
     if (share) {
       try {
         const parsed = JSON.parse(decodeURIComponent(share));
         const allSounds: Record<string, string> = {};
-
         sounds.categories.forEach(category => {
           category.sounds.forEach(sound => {
             allSounds[sound.id] = sound.label;
           });
         });
-
         const _sharedSounds: Array<{
           id: string;
           label: string;
           volume: number;
         }> = [];
-
         Object.keys(parsed).forEach(sound => {
           if (allSounds[sound]) {
             _sharedSounds.push({
@@ -59,7 +51,6 @@ export function SharedModal() {
             });
           }
         });
-
         if (_sharedSounds.length) {
           setIsOpen(true);
           setSharedSounds(_sharedSounds);
@@ -71,43 +62,41 @@ export function SharedModal() {
       }
     }
   }, []);
-
   const handleOverride = () => {
     const newSounds: Record<string, number> = {};
-
     sharedSounds.forEach(sound => {
       newSounds[sound.id] = sound.volume;
     });
-
     override(newSounds);
     setIsOpen(false);
-    showSnackbar('Done! You can now play the new selection.');
+    showSnackbar(t('Done! You can now play the new selection.'));
   };
-
   useCloseListener(() => setIsOpen(false));
-
   return (
     <Modal show={isOpen} onClose={() => setIsOpen(false)}>
       <ModalHeader>
         <div>
-          <ModalTitle>New sound mix detected!</ModalTitle>
+          <ModalTitle>{t('New sound mix detected!')}</ModalTitle>
           <ModalDescription>
-            Someone has shared the following mix with you. Would you want to
-            override your current selection?
+            {t(
+              'Someone has shared the following mix with you. Would you want to override your current selection?',
+            )}
           </ModalDescription>
         </div>
       </ModalHeader>
       <div className={styles.sounds}>
         {sharedSounds.map(sound => (
           <div className={styles.sound} key={sound.id}>
-            {sound.label}
+            {t(sound.label)}
           </div>
         ))}
       </div>
       <ModalActions>
-        <ModalButton onClick={() => setIsOpen(false)}>Cancel</ModalButton>
+        <ModalButton onClick={() => setIsOpen(false)}>
+          {t('Cancel')}
+        </ModalButton>
         <ModalButton variant="primary" onClick={handleOverride}>
-          Override
+          {t('Override')}
         </ModalButton>
       </ModalActions>
     </Modal>

@@ -1,3 +1,4 @@
+import { useTranslation } from '@/contexts/language';
 import { useRef } from 'react';
 import { flushSync } from 'react-dom';
 import { BiHeart, BiSolidHeart } from 'react-icons/bi/index';
@@ -15,6 +16,7 @@ interface FavoriteProps {
 }
 
 export function Favorite({ id, label }: FavoriteProps) {
+  const t = useTranslation();
   const buttonRef = useRef<HTMLButtonElement>(null);
   const isFavorite = useSoundStore(state => state.sounds[id].isFavorite);
   const toggleFavorite = useSoundStore(state => state.toggleFavorite);
@@ -42,8 +44,8 @@ export function Favorite({ id, label }: FavoriteProps) {
         className={cn(styles.favoriteButton, isFavorite && styles.isFavorite)}
         aria-label={
           isFavorite
-            ? `Remove ${label} Sound from Favorites`
-            : `Add ${label} Sound to Favorites`
+            ? t('Remove {label} Sound from Favorites', { label: t(label) })
+            : t('Add {label} Sound to Favorites', { label: t(label) })
         }
         aria-pressed={isFavorite}
         onClick={handleToggle}

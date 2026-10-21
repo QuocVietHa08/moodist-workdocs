@@ -1,6 +1,6 @@
+import { useTranslation } from '@/contexts/language';
 import { useState } from 'react';
 import YouTube from 'react-youtube';
-
 import {
   Modal,
   ModalActions,
@@ -8,15 +8,12 @@ import {
   ModalHeader,
   ModalTitle,
 } from '@/components/modal';
-
 import styles from './lofi.module.css';
 import { padNumber } from '@/helpers/number';
-
 interface LofiProps {
   onClose: () => void;
   show: boolean;
 }
-
 const videos = [
   {
     channel: 'Lofi Girl',
@@ -44,29 +41,27 @@ const videos = [
     title: 'relaxing piano radio',
   },
 ];
-
 export function LofiModal({ onClose, show }: LofiProps) {
+  const t = useTranslation();
   const [isAccepted, setIsAccepted] = useState(false);
-
   return (
     <Modal persist show={show} onClose={onClose}>
       <ModalHeader>
-        <ModalTitle>Lofi Music Player</ModalTitle>
+        <ModalTitle>{t('Lofi Music Player')}</ModalTitle>
       </ModalHeader>
 
       {!isAccepted ? (
         <div className={styles.notice}>
           <p>
-            This feature plays music using embedded YouTube videos. By
-            continuing, you agree to connect to YouTube, which may collect data
-            in accordance with their privacy policy. We do not control or track
-            this data.
+            {t(
+              'This feature plays music using embedded YouTube videos. By continuing, you agree to connect to YouTube, which may collect data in accordance with their privacy policy. We do not control or track this data.',
+            )}
           </p>
 
           <ModalActions>
-            <ModalButton onClick={onClose}>Cancel</ModalButton>
+            <ModalButton onClick={onClose}>{t('Cancel')}</ModalButton>
             <ModalButton variant="primary" onClick={() => setIsAccepted(true)}>
-              Continue
+              {t('Continue')}
             </ModalButton>
           </ModalActions>
         </div>

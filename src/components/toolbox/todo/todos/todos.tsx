@@ -1,17 +1,15 @@
+import { useTranslation } from '@/contexts/language';
 import { Todo } from './todo';
-
 import { useTodoStore } from '@/stores/todo';
-
 import styles from './todos.module.css';
-
 export function Todos() {
+  const t = useTranslation();
   const todos = useTodoStore(state => state.todos);
   const doneCount = useTodoStore(state => state.doneCount());
-
   return (
     <div className={styles.todos}>
       <header>
-        <p className={styles.label}>Your tasks</p>
+        <p className={styles.label}>{t('Your tasks')}</p>
         <div className={styles.divider} />
         <p className={styles.counter}>
           {doneCount} / {todos.length}
@@ -23,7 +21,7 @@ export function Todos() {
           <Todo done={todo.done} id={todo.id} key={todo.id} todo={todo.todo} />
         ))
       ) : (
-        <p className={styles.empty}>Add a task to get started.</p>
+        <p className={styles.empty}>{t('Add a task to get started.')}</p>
       )}
     </div>
   );

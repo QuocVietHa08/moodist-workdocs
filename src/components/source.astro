@@ -1,4 +1,11 @@
 ---
+import { createTranslator, type Locale } from '@/lib/i18n';
+interface Props {
+  locale?: Locale;
+}
+const { locale = 'vi' } = Astro.props;
+const t = createTranslator(locale);
+
 import { FaGithub } from 'react-icons/fa/index';
 
 import { Container } from './container';
@@ -17,17 +24,16 @@ const initialBinary = generateRandomBinaryString(400);
       </div>
 
       <div class="copy">
-        <h2>A calmer space, open to everyone.</h2>
+        <h2>{t('A calmer space, open to everyone.')}</h2>
         <p>
-          Focus is free and open-source. Bring an idea, explore the code, or
-          help make this little corner of the internet feel more like home.
+          {t('Focus is free and open-source. Bring an idea, explore the code, or help make this little corner of the internet feel more like home.')}
         </p>
       </div>
 
       <div class="action">
         <SpecialButton href="https://github.com/QuocVietHa08/moodist-workdocs">
           <FaGithub />
-          View source on GitHub
+          {t('View source on GitHub')}
         </SpecialButton>
       </div>
     </div>

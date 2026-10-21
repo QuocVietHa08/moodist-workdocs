@@ -1,16 +1,13 @@
+import { useTranslation } from '@/contexts/language';
 import { useEffect, useId, useRef } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
 import { IoClose } from 'react-icons/io5/index';
 import FocusTrap from 'focus-trap-react';
-
 import { Portal } from '@/components/portal';
-
 import { fade, mix, slideY } from '@/lib/motion';
 import { cn } from '@/helpers/styles';
 import { ModalTitleContext } from './elements';
-
 import styles from './modal.module.css';
-
 interface ModalProps {
   children: React.ReactNode;
   docked?: boolean;
@@ -22,9 +19,7 @@ interface ModalProps {
   show: boolean;
   wide?: boolean;
 }
-
 const TRANSITION_DURATION = 300;
-
 function DockedPanel({
   children,
   onClose,
@@ -34,8 +29,8 @@ function DockedPanel({
   onClose: () => void;
   titleId: string;
 }) {
+  const t = useTranslation();
   const panelRef = useRef<HTMLElement>(null);
-
   useEffect(() => {
     const panel = panelRef.current;
     if (!panel) return;
@@ -50,9 +45,10 @@ function DockedPanel({
       const input = panel.querySelector<HTMLElement>(
         'textarea, input[type="text"]:not(:disabled)',
       );
-      (input || panel).focus({ preventScroll: true });
+      (input || panel).focus({
+        preventScroll: true,
+      });
     });
-
     return () => {
       cancelAnimationFrame(frame);
       if (
@@ -60,11 +56,13 @@ function DockedPanel({
         document.activeElement === document.body
       ) {
         const target = trigger?.isConnected ? trigger : previousFocus;
-        if (target?.isConnected) target.focus({ preventScroll: true });
+        if (target?.isConnected)
+          target.focus({
+            preventScroll: true,
+          });
       }
     };
   }, []);
-
   return (
     <section
       aria-labelledby={titleId}
@@ -74,7 +72,7 @@ function DockedPanel({
       tabIndex={-1}
     >
       <button
-        aria-label="Minimize tool"
+        aria-label={t('Minimize tool')}
         className={styles.minimize}
         onClick={onClose}
         type="button"
@@ -85,7 +83,6 @@ function DockedPanel({
     </section>
   );
 }
-
 export function Modal({
   children,
   docked = false,
@@ -97,6 +94,7 @@ export function Modal({
   show,
   wide,
 }: ModalProps) {
+  const t = useTranslation();
   const titleId = useId();
   const labelledChildren = (
     <ModalTitleContext.Provider value={titleId}>
@@ -107,30 +105,23 @@ export function Modal({
     modal: mix(fade(), slideY(20)),
     overlay: fade(),
   };
-
   useEffect(() => {
     if (!show || !lockBody || docked) return;
-
     const previousOverflow = document.body.style.overflowY;
     document.body.style.overflowY = 'hidden';
-
     return () => {
       document.body.style.overflowY = previousOverflow;
     };
   }, [show, lockBody, docked]);
-
   useEffect(() => {
     function keyListener(e: KeyboardEvent) {
       if (show && closeOnEscape && e.key === 'Escape') {
         onClose();
       }
     }
-
     document.addEventListener('keydown', keyListener);
-
     return () => document.removeEventListener('keydown', keyListener);
   }, [closeOnEscape, onClose, show]);
-
   const animationProps = persist
     ? {
         animate: show ? 'show' : 'hidden',
@@ -140,7 +131,6 @@ export function Modal({
         exit: 'hidden',
         initial: 'hidden',
       };
-
   if (docked) {
     return show ? (
       <Portal>
@@ -150,14 +140,15 @@ export function Modal({
       </Portal>
     ) : null;
   }
-
   const content = (
     <FocusTrap active={show}>
       <div>
         <motion.div
           {...animationProps}
           className={styles.overlay}
-          transition={{ duration: TRANSITION_DURATION / 1000 }}
+          transition={{
+            duration: TRANSITION_DURATION / 1000,
+          }}
           variants={variants.overlay}
           onClick={onClose}
           onKeyDown={onClose}
@@ -169,11 +160,13 @@ export function Modal({
             aria-modal="true"
             className={cn(styles.content, wide && styles.wide)}
             role="dialog"
-            transition={{ duration: TRANSITION_DURATION / 1000 }}
+            transition={{
+              duration: TRANSITION_DURATION / 1000,
+            }}
             variants={variants.modal}
           >
             <button
-              aria-label="Close dialog"
+              aria-label={t('Close dialog')}
               className={styles.close}
               onClick={onClose}
             >
@@ -186,11 +179,16 @@ export function Modal({
       </div>
     </FocusTrap>
   );
-
   return (
     <Portal>
       {persist ? (
-        <div style={{ display: show ? 'block' : 'none' }}>{content}</div>
+        <div
+          style={{
+            display: show ? 'block' : 'none',
+          }}
+        >
+          {content}
+        </div>
       ) : (
         <AnimatePresence>{show && content}</AnimatePresence>
       )}

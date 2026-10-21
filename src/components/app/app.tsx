@@ -3,6 +3,8 @@ import { useShallow } from 'zustand/react/shallow';
 import { BiSolidHeart } from 'react-icons/bi/index';
 import { Howler } from 'howler';
 import { MotionConfig } from 'motion/react';
+import { LanguageContext } from '@/contexts/language';
+import type { Locale } from '@/lib/i18n';
 
 import { useSoundStore } from '@/stores/sound';
 
@@ -23,7 +25,15 @@ import { FADE_OUT } from '@/constants/events';
 import type { Sound } from '@/data/types';
 import { subscribe } from '@/lib/event';
 
-export function App() {
+export function App({ locale = 'vi' }: { locale?: Locale }) {
+  return (
+    <LanguageContext.Provider value={locale}>
+      <AppContent />
+    </LanguageContext.Provider>
+  );
+}
+
+function AppContent() {
   const categories = useMemo(() => sounds.categories, []);
 
   const favorites = useSoundStore(useShallow(state => state.getFavorites()));

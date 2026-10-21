@@ -2,7 +2,8 @@ const normalize = (text: string) =>
   text
     .normalize('NFD')
     .replace(/\p{Diacritic}/gu, '')
-    .toLowerCase();
+    .toLowerCase()
+    .replace(/đ/g, 'd');
 
 export function filterSound(
   value: string,

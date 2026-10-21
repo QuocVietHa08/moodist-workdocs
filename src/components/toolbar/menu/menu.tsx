@@ -1,9 +1,9 @@
+import { useTranslation } from '@/contexts/language';
 import { useState, useMemo, useCallback, useEffect } from 'react';
 import { IoMenu, IoClose } from 'react-icons/io5/index';
 import { DropdownMenu } from 'radix-ui';
 import { useHotkeys } from 'react-hotkeys-hook';
 import { AnimatePresence, motion } from 'motion/react';
-
 import {
   ShuffleItem,
   ShareItem,
@@ -43,25 +43,20 @@ import {
   Todo,
   Countdown,
 } from '@/components/toolbox';
-
 import { FocusDock } from '@/components/focus-dock/focus-dock';
-
 import { fade, mix, slideY } from '@/lib/motion';
 import { useSoundStore } from '@/stores/sound';
-
 import styles from './menu.module.css';
 import { useCloseListener } from '@/hooks/use-close-listener';
 import { closeModals } from '@/lib/modal';
 import { toggleTheme } from '@/lib/theme';
 import { subscribe } from '@/lib/event';
 import { OPEN_PRESETS, focusTools } from '@/constants/events';
-
 export function Menu() {
+  const t = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
   const [radioPlaying, setRadioPlaying] = useState(false);
-
   const noSelected = useSoundStore(state => state.noSelected());
-
   const initial = useMemo(
     () => ({
       binaural: false,
@@ -82,28 +77,29 @@ export function Menu() {
     }),
     [],
   );
-
   const [modals, setModals] = useState(initial);
-
   const close = useCallback((name: string) => {
-    setModals(prev => ({ ...prev, [name]: false }));
+    setModals(prev => ({
+      ...prev,
+      [name]: false,
+    }));
   }, []);
-
   const closeAll = useCallback(() => {
     setModals(initial);
     setIsOpen(false);
   }, [initial]);
-
   const open = useCallback(
     (name: string) => {
       closeAll();
       setIsOpen(false);
       closeModals();
-      setModals(prev => ({ ...prev, [name]: true }));
+      setModals(prev => ({
+        ...prev,
+        [name]: true,
+      }));
     },
     [closeAll],
   );
-
   useHotkeys('shift+m', () => setIsOpen(prev => !prev));
   useHotkeys('shift+alt+p', () => open('presets'));
   useHotkeys('shift+h', () => open('shortcuts'));
@@ -115,15 +111,13 @@ export function Menu() {
   useHotkeys('shift+c', () => open('countdown'));
   useHotkeys('shift+g', () => open('settings'));
   useHotkeys('shift+d', toggleTheme);
-  useHotkeys('shift+s', () => open('shareLink'), { enabled: !noSelected });
+  useHotkeys('shift+s', () => open('shareLink'), {
+    enabled: !noSelected,
+  });
   useHotkeys('shift+alt+t', () => open('sleepTimer'));
-
   useEffect(() => subscribe(OPEN_PRESETS, () => open('presets')), [open]);
-
   useCloseListener(closeAll);
-
   const variants = mix(fade(), slideY());
-
   return (
     <>
       <FocusDock
@@ -138,7 +132,7 @@ export function Menu() {
           onOpenChange={o => setIsOpen(o)}
         >
           <DropdownMenu.Trigger asChild>
-            <button aria-label="Menu" className={styles.menuButton}>
+            <button aria-label={t('Menu')} className={styles.menuButton}>
               {isOpen ? <IoClose /> : <IoMenu />}
             </button>
           </DropdownMenu.Trigger>

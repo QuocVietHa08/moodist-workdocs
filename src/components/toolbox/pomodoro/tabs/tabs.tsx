@@ -1,14 +1,16 @@
+import { useTranslation } from '@/contexts/language';
 import { cn } from '@/helpers/styles';
-
 import styles from './tabs.module.css';
-
 interface TabsProps {
   onSelect: (id: string) => void;
   selectedTab: string;
-  tabs: Array<{ id: string; label: string }>;
+  tabs: Array<{
+    id: string;
+    label: string;
+  }>;
 }
-
 export function Tabs({ onSelect, selectedTab, tabs }: TabsProps) {
+  const t = useTranslation();
   return (
     <div className={styles.tabs}>
       {tabs.map(tab => (
@@ -17,7 +19,7 @@ export function Tabs({ onSelect, selectedTab, tabs }: TabsProps) {
           key={tab.id}
           onClick={() => onSelect(tab.id)}
         >
-          {tab.label}
+          {t(tab.label)}
         </button>
       ))}
     </div>

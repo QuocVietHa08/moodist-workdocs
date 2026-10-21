@@ -1,8 +1,7 @@
+import { useTranslation } from '@/contexts/language';
 import { FiExternalLink } from 'react-icons/fi/index';
 import { DropdownMenu } from 'radix-ui';
-
 import styles from './item.module.css';
-
 interface ItemProps {
   active?: boolean;
   disabled?: boolean;
@@ -12,7 +11,6 @@ interface ItemProps {
   onClick?: () => void;
   shortcut?: string;
 }
-
 export function Item({
   active,
   disabled = false,
@@ -22,19 +20,28 @@ export function Item({
   onClick = () => {},
   shortcut,
 }: ItemProps) {
+  const t = useTranslation();
   const Comp = href ? 'a' : 'button';
-
   return (
     <DropdownMenu.Item asChild onClick={onClick}>
       <Comp
         className={styles.item}
         disabled={disabled}
-        {...(href ? { href, target: '_blank' } : {})}
-        {...(!href && active !== undefined ? { 'aria-pressed': active } : {})}
-        aria-label={label}
+        {...(href
+          ? {
+              href,
+              target: '_blank',
+            }
+          : {})}
+        {...(!href && active !== undefined
+          ? {
+              'aria-pressed': active,
+            }
+          : {})}
+        aria-label={t(label)}
       >
         <span className={styles.label}>
-          <span className={styles.icon}>{icon}</span> {label}
+          <span className={styles.icon}>{icon}</span> {t(label)}
           {active && <div className={styles.active} />}
         </span>
 

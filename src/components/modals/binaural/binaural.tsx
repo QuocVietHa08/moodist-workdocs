@@ -1,5 +1,5 @@
+import { useTranslation } from '@/contexts/language';
 import { useEffect, useState, useRef, useCallback } from 'react';
-
 import {
   Modal,
   ModalActions,
@@ -9,29 +9,48 @@ import {
   ModalTitle,
 } from '@/components/modal';
 import { Slider } from '@/components/slider';
-
 import styles from './binaural.module.css';
-
 interface BinauralProps {
   onClose: () => void;
   show: boolean;
 }
-
 interface Preset {
   baseFrequency: number;
   beatFrequency: number;
   name: string;
 }
-
 const presets: Preset[] = [
-  { baseFrequency: 100, beatFrequency: 2, name: 'Delta (Deep Sleep) 2 Hz' },
-  { baseFrequency: 100, beatFrequency: 5, name: 'Theta (Meditation) 5 Hz' },
-  { baseFrequency: 100, beatFrequency: 10, name: 'Alpha (Relaxation) 10 Hz' },
-  { baseFrequency: 100, beatFrequency: 20, name: 'Beta (Focus) 20 Hz' },
-  { baseFrequency: 100, beatFrequency: 40, name: 'Gamma (Cognition) 40 Hz' },
-  { baseFrequency: 440, beatFrequency: 10, name: 'Custom' },
+  {
+    baseFrequency: 100,
+    beatFrequency: 2,
+    name: 'Delta (Deep Sleep) 2 Hz',
+  },
+  {
+    baseFrequency: 100,
+    beatFrequency: 5,
+    name: 'Theta (Meditation) 5 Hz',
+  },
+  {
+    baseFrequency: 100,
+    beatFrequency: 10,
+    name: 'Alpha (Relaxation) 10 Hz',
+  },
+  {
+    baseFrequency: 100,
+    beatFrequency: 20,
+    name: 'Beta (Focus) 20 Hz',
+  },
+  {
+    baseFrequency: 100,
+    beatFrequency: 40,
+    name: 'Gamma (Cognition) 40 Hz',
+  },
+  {
+    baseFrequency: 440,
+    beatFrequency: 10,
+    name: 'Custom',
+  },
 ];
-
 function computeBinauralBeatOscillatorFrequencies(
   baseFrequency: number,
   beatFrequency: number,
@@ -41,26 +60,23 @@ function computeBinauralBeatOscillatorFrequencies(
     rightFrequency: baseFrequency + beatFrequency / 2,
   };
 }
-
 export function BinauralModal({ onClose, show }: BinauralProps) {
+  const t = useTranslation();
   const [baseFrequency, setBaseFrequency] = useState<number>(440); // Default to A4 note
   const [beatFrequency, setBeatFrequency] = useState<number>(10); // Default to 10 Hz difference
   const [volume, setVolume] = useState<number>(0.5); // Default volume at 50%
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
   const [selectedPreset, setSelectedPreset] = useState<string>('Custom');
-
   const audioContextRef = useRef<AudioContext | null>(null);
   const leftOscillatorRef = useRef<OscillatorNode | null>(null);
   const rightOscillatorRef = useRef<OscillatorNode | null>(null);
   const gainNodeRef = useRef<GainNode | null>(null);
-
   const startSound = () => {
     if (isPlaying) return;
 
     // Initialize the AudioContext
     audioContextRef.current = new window.AudioContext();
     const audioContext = audioContextRef.current;
-
     if (!audioContext) return;
 
     // Create a gain node for volume control
@@ -70,14 +86,12 @@ export function BinauralModal({ onClose, show }: BinauralProps) {
     // Create oscillators for left and right channels
     leftOscillatorRef.current = audioContext.createOscillator();
     rightOscillatorRef.current = audioContext.createOscillator();
-
     if (
       !leftOscillatorRef.current ||
       !rightOscillatorRef.current ||
       !gainNodeRef.current
     )
       return;
-
     const { leftFrequency, rightFrequency } =
       computeBinauralBeatOscillatorFrequencies(baseFrequency, beatFrequency);
     leftOscillatorRef.current.frequency.value = leftFrequency;
@@ -86,7 +100,6 @@ export function BinauralModal({ onClose, show }: BinauralProps) {
     // Pan oscillators to left and right
     const leftPanner = audioContext.createStereoPanner();
     leftPanner.pan.value = -1;
-
     const rightPanner = audioContext.createStereoPanner();
     rightPanner.pan.value = 1;
 
@@ -100,27 +113,21 @@ export function BinauralModal({ onClose, show }: BinauralProps) {
     // Start oscillators
     leftOscillatorRef.current.start();
     rightOscillatorRef.current.start();
-
     setIsPlaying(true);
   };
-
   const stopSound = useCallback(() => {
     if (!isPlaying) return;
-
     leftOscillatorRef.current?.stop();
     rightOscillatorRef.current?.stop();
     audioContextRef.current?.close();
-
     setIsPlaying(false);
   }, [isPlaying]);
-
   useEffect(() => {
     // Update gain node when volume changes
     if (gainNodeRef.current) {
       gainNodeRef.current.gain.value = volume;
     }
   }, [volume]);
-
   useEffect(() => {
     // Update base frequency for both left and right oscillators when it changes
     if (leftOscillatorRef.current && rightOscillatorRef.current) {
@@ -130,7 +137,6 @@ export function BinauralModal({ onClose, show }: BinauralProps) {
       rightOscillatorRef.current.frequency.value = rightFrequency;
     }
   }, [baseFrequency, beatFrequency]);
-
   useEffect(() => {
     // Cleanup when component unmounts
     return () => {
@@ -139,7 +145,6 @@ export function BinauralModal({ onClose, show }: BinauralProps) {
       }
     };
   }, [isPlaying, stopSound]);
-
   useEffect(() => {
     // Update frequencies when a preset is selected
     if (selectedPreset !== 'Custom') {
@@ -150,39 +155,35 @@ export function BinauralModal({ onClose, show }: BinauralProps) {
       }
     }
   }, [selectedPreset]);
-
   const handlePresetChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const selected = e.target.value;
     setSelectedPreset(selected);
-
     if (selected === 'Custom') {
       // Allow user to input custom frequencies
       return;
     }
-
     const preset = presets.find(p => p.name === selected);
     if (preset) {
       setBaseFrequency(preset.baseFrequency);
       setBeatFrequency(preset.beatFrequency);
     }
   };
-
   return (
     <Modal show={show} onClose={onClose}>
       <ModalHeader>
         <div>
-          <ModalTitle>Binaural Beat</ModalTitle>
-          <ModalDescription>Binaural beat generator.</ModalDescription>
+          <ModalTitle>{t('Binaural Beat')}</ModalTitle>
+          <ModalDescription>{t('Binaural beat generator.')}</ModalDescription>
         </div>
       </ModalHeader>
 
       <div className={styles.fieldWrapper}>
         <label>
-          Presets:
+          {t('Presets:')}
           <select value={selectedPreset} onChange={handlePresetChange}>
             {presets.map(preset => (
-              <option key={preset.name} value={preset.name}>
-                {preset.name}
+              <option key={t(preset.name)} value={t(preset.name)}>
+                {t(preset.name)}
               </option>
             ))}
           </select>
@@ -192,7 +193,7 @@ export function BinauralModal({ onClose, show }: BinauralProps) {
         <>
           <div className={styles.fieldWrapper}>
             <label>
-              Base Frequency (Hz):
+              {t('Base Frequency (Hz):')}
               <input
                 max="1500"
                 min="20"
@@ -207,7 +208,7 @@ export function BinauralModal({ onClose, show }: BinauralProps) {
           </div>
           <div className={styles.fieldWrapper}>
             <label>
-              Beat Frequency (Hz):
+              {t('Beat Frequency (Hz):')}
               <input
                 max="40"
                 min="0.1"
@@ -224,7 +225,7 @@ export function BinauralModal({ onClose, show }: BinauralProps) {
       )}
       <div className={styles.fieldWrapper}>
         <label>
-          Volume:
+          {t('Volume:')}
           <Slider
             className={styles.volume}
             max={1}
@@ -242,10 +243,10 @@ export function BinauralModal({ onClose, show }: BinauralProps) {
           disabled={isPlaying}
           onClick={startSound}
         >
-          Start
+          {t('Start')}
         </ModalButton>
         <ModalButton fullWidth disabled={!isPlaying} onClick={stopSound}>
-          Stop
+          {t('Stop')}
         </ModalButton>
       </ModalActions>
     </Modal>

@@ -1,3 +1,4 @@
+import { useTranslation } from '@/contexts/language';
 import { useRegisterSW } from 'virtual:pwa-register/react'; // eslint-disable-line
 
 import {
@@ -8,35 +9,33 @@ import {
   ModalHeader,
   ModalTitle,
 } from '@/components/modal';
-
 export function ReloadModal() {
+  const t = useTranslation();
   const {
     needRefresh: [needRefresh, setNeedRefresh],
     updateServiceWorker,
   } = useRegisterSW();
-
   const close = () => {
     setNeedRefresh(false);
   };
-
   return (
     <Modal show={needRefresh} onClose={close}>
       <ModalHeader>
         <div>
-          <ModalTitle>New Content</ModalTitle>
+          <ModalTitle>{t('New Content')}</ModalTitle>
           <ModalDescription>
-            New content available, click on reload button to update.
+            {t('New content available, click on reload button to update.')}
           </ModalDescription>
         </div>
       </ModalHeader>
 
       <ModalActions>
-        <ModalButton onClick={close}>Close</ModalButton>
+        <ModalButton onClick={close}>{t('Close')}</ModalButton>
         <ModalButton
           variant="primary"
           onClick={() => updateServiceWorker(true)}
         >
-          Reload
+          {t('Reload')}
         </ModalButton>
       </ModalActions>
     </Modal>

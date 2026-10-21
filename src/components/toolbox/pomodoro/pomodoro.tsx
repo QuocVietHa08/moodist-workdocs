@@ -1,6 +1,6 @@
+import { useTranslation } from '@/contexts/language';
 import { useState, useEffect } from 'react';
 import { FaUndo, FaPlay, FaPause } from 'react-icons/fa/index';
-
 import { Modal, ModalHeader, ModalTitle } from '@/components/modal';
 import { useSoundEffect } from '@/hooks/use-sound-effect';
 import {
@@ -9,23 +9,19 @@ import {
   formatPomodoroTime,
 } from '@/stores/pomodoro';
 import { useSettingsStore } from '@/stores/settings';
-
 import styles from './pomodoro.module.css';
-
 interface PomodoroProps {
   onClose: () => void;
   show: boolean;
 }
-
 const storageKey = 'moodist-pomodoro-setting';
-
 export function Pomodoro({ onClose, show }: PomodoroProps) {
+  const t = useTranslation();
   const timer = usePomodoroStore();
   const [ready, setReady] = useState(false);
   const [minutes, setMinutes] = useState('25');
   const alarmVolume = useSettingsStore(state => state.alarmVolume);
   const alarm = useSoundEffect('/sounds/alarm.mp3', alarmVolume);
-
   useEffect(() => {
     try {
       const saved = localStorage.getItem(storageKey);
@@ -35,7 +31,6 @@ export function Pomodoro({ onClose, show }: PomodoroProps) {
     }
     setReady(true);
   }, []);
-
   useEffect(() => {
     if (!ready) return;
     try {
@@ -44,11 +39,9 @@ export function Pomodoro({ onClose, show }: PomodoroProps) {
       // The timer also works when browser storage is unavailable.
     }
   }, [timer.durations, ready]);
-
   useEffect(() => {
     setMinutes(String(timer.durations[timer.mode] / 60));
   }, [timer.mode, timer.durations]);
-
   useEffect(() => {
     if (!timer.running) return;
     const update = () => {
@@ -62,7 +55,6 @@ export function Pomodoro({ onClose, show }: PomodoroProps) {
       document.removeEventListener('visibilitychange', update);
     };
   }, [timer.running]);
-
   useEffect(
     () =>
       usePomodoroStore.subscribe((state, previous) => {
@@ -70,7 +62,6 @@ export function Pomodoro({ onClose, show }: PomodoroProps) {
       }),
     [alarm],
   );
-
   const quickStart = (duration: number) => {
     timer.setDuration(duration * 60);
     timer.start();
@@ -80,18 +71,17 @@ export function Pomodoro({ onClose, show }: PomodoroProps) {
     !timer.running &&
     timer.remaining > 0 &&
     timer.remaining < timer.durations[timer.mode];
-
   return (
     <Modal docked show={show} onClose={onClose}>
       <ModalHeader>
         <div>
-          <ModalTitle>Focus timer</ModalTitle>
+          <ModalTitle>{t('Focus timer')}</ModalTitle>
           <p className={styles.hint}>
-            Pick a duration to start. Keep your sounds close.
+            {t('Pick a duration to start. Keep your sounds close.')}
           </p>
         </div>
       </ModalHeader>
-      <div role="group" aria-label="Timer mode" className={styles.modes}>
+      <div role="group" aria-label={t('Timer mode')} className={styles.modes}>
         {pomodoroModes.map(({ id, label }) => (
           <button
             aria-pressed={timer.mode === id}
@@ -99,31 +89,42 @@ export function Pomodoro({ onClose, show }: PomodoroProps) {
             onClick={() => timer.setMode(id)}
             type="button"
           >
-            {label}
+            {t(label)}
           </button>
         ))}
       </div>
-      <div className={styles.time} role="timer" aria-label="Time remaining">
+      <div
+        className={styles.time}
+        role="timer"
+        aria-label={t('Time remaining')}
+      >
         {formatPomodoroTime(timer.remaining)}
       </div>
       <p className={styles.status}>
         {timer.running
-          ? 'Time for one thing.'
+          ? t('Time for one thing.')
           : timer.remaining === 0
-            ? 'Session complete. Take a breath.'
+            ? t('Session complete. Take a breath.')
             : paused
-              ? 'Paused. Take your time.'
-              : 'Ready when you are.'}
+              ? t('Paused. Take your time.')
+              : t('Ready when you are.')}
       </p>
-      <div role="group" aria-label="Quick start" className={styles.presets}>
+      <div
+        role="group"
+        aria-label={t('Quick start')}
+        className={styles.presets}
+      >
         {presets.map(value => (
           <button
-            aria-label={`Start ${value} minute ${timer.mode === 'pomodoro' ? 'focus' : 'break'}`}
+            aria-label={t('Start {minutes} minute {mode}', {
+              minutes: value,
+              mode: t(timer.mode === 'pomodoro' ? 'focus' : 'break'),
+            })}
             key={value}
             onClick={() => quickStart(value)}
             type="button"
           >
-            {value} min
+            {value} {t('min')}
           </button>
         ))}
       </div>
@@ -136,7 +137,7 @@ export function Pomodoro({ onClose, show }: PomodoroProps) {
           quickStart(value);
         }}
       >
-        <label htmlFor="focus-duration">Custom minutes</label>
+        <label htmlFor="focus-duration">{t('Custom minutes')}</label>
         <input
           id="focus-duration"
           min={1}
@@ -147,11 +148,11 @@ export function Pomodoro({ onClose, show }: PomodoroProps) {
           value={minutes}
           onChange={event => setMinutes(event.target.value)}
         />
-        <button type="submit">Start</button>
+        <button type="submit">{t('Start')}</button>
       </form>
       <div className={styles.control}>
         <button
-          aria-label="Reset focus timer"
+          aria-label={t('Reset focus timer')}
           className={styles.reset}
           onClick={timer.reset}
           type="button"
@@ -169,15 +170,16 @@ export function Pomodoro({ onClose, show }: PomodoroProps) {
             <FaPlay aria-hidden="true" />
           )}
           {timer.running
-            ? 'Pause timer'
+            ? t('Pause timer')
             : paused
-              ? 'Resume timer'
-              : 'Start timer'}
+              ? t('Resume timer')
+              : t('Start timer')}
         </button>
       </div>
       <p className={styles.completed}>
-        {timer.completions[timer.mode]} completed · Keeps running when tucked
-        away.
+        {t('{count} completed. Keeps running when tucked away.', {
+          count: timer.completions[timer.mode],
+        })}
       </p>
     </Modal>
   );

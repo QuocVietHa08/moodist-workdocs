@@ -1,11 +1,18 @@
 ---
+import { createTranslator, type Locale } from '@/lib/i18n';
+interface Props {
+  locale?: Locale;
+}
+const { locale = 'vi' } = Astro.props;
+const t = createTranslator(locale);
+
 import { Container } from './container';
 ---
 
 <footer class="footer">
   <Container>
     <p>
-      Created by <a href="https://www.theworkdocs.com/">The Work Docs team</a>
+      {t('Created by')} <a href="https://www.theworkdocs.com/">{t('The Work Docs team')}</a>
     </p>
   </Container>
 </footer>
