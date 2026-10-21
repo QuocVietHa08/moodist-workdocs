@@ -1,0 +1,9 @@
+:root {
+  --floating-inset: max(24px, calc((100vw - 1200px) / 2));
+}
+
+@media (width < 1200px) {
+  :root {
+    --floating-inset: 20px;
+  }
+}

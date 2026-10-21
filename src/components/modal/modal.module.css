@@ -143,7 +143,7 @@
 
 .docked {
   position: fixed;
-  right: 88px;
+  right: calc(var(--floating-inset) + 72px);
   bottom: 86px;
   z-index: 18;
   width: min(380px, calc(100vw - 108px));
@@ -197,12 +197,18 @@
     background: var(--color-surface-hover);
   }
 }
+@media (width < 1200px) {
+  .docked {
+    right: 50%;
+    bottom: 154px;
+    width: min(380px, calc(100vw - 24px));
+    max-height: calc(100dvh - 178px);
+    transform: translateX(50%);
+  }
+}
 @media (width <= 600px) {
   .docked {
-    right: 12px;
-    bottom: 146px;
     width: calc(100vw - 24px);
-    max-height: calc(100dvh - 170px);
     padding: 20px;
   }
 }

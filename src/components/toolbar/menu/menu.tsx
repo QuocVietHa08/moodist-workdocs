@@ -147,7 +147,7 @@ export function Menu() {
             {isOpen && (
               <DropdownMenu.Portal forceMount>
                 <DropdownMenu.Content
-                  align="end"
+                  align="start"
                   asChild
                   collisionPadding={10}
                   side="top"

@@ -59,7 +59,7 @@ export function StarterMixes() {
 
         <Popover.Portal>
           <Popover.Content
-            align="end"
+            align="start"
             className={styles.content}
             collisionPadding={12}
             side="top"
