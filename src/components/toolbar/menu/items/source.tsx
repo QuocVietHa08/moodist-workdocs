@@ -5,7 +5,7 @@ import { Item } from '../item';
 export function Source() {
   return (
     <Item
-      href="https://github.com/remvze/moodist"
+      href="https://github.com/QuocVietHa08/moodist-workdocs"
       icon={<LuGithub />}
       label="Source Code"
     />
