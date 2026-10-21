@@ -10,19 +10,20 @@ export default defineConfig({
     AstroPWA({
       manifest: {
         background_color: '#121923',
-        description: 'Ambient sounds for focus and calm.',
+        description:
+          'Focus by The Work Docs. Ambient sounds and simple tools for calmer work.',
         display: 'standalone',
         icons: [
           ...[72, 128, 144, 152, 192, 256, 512].map(size => ({
             sizes: `${size}x${size}`,
-            src: `/assets/pwa/${size}.png`,
+            src: `/assets/pwa/${size}.png?v=focus`,
             type: 'image/png',
           })),
         ],
-        name: 'Moodist',
+        name: 'Focus by The Work Docs',
         orientation: 'any',
         scope: '/',
-        short_name: 'Moodist',
+        short_name: 'Focus',
         start_url: '/',
         theme_color: '#121923',
       },

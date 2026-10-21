@@ -5,36 +5,31 @@ import { BrowserDetect } from '@/helpers/browser-detect';
 import { useSoundStore } from '@/stores/sound';
 
 import { useSSR } from '@/hooks/use-ssr';
-import { useDarkTheme } from '@/hooks/use-dark-theme';
-
 const metadata: MediaMetadataInit = {
-  artist: 'Moodist',
-  title: 'Ambient Sounds for Focus and Calm',
+  artist: 'The Work Docs',
+  title: 'Focus by The Work Docs',
+  album: 'Ambient sounds for focus and calm',
+  artwork: [
+    {
+      sizes: '512x512',
+      src: '/assets/pwa/512.png?v=focus',
+      type: 'image/png',
+    },
+  ],
 };
 
 export function MediaSessionTrack() {
   const { isBrowser } = useSSR();
-  const isDarkTheme = useDarkTheme();
   const isPlaying = useSoundStore(state => state.isPlaying);
   const play = useSoundStore(state => state.play);
   const pause = useSoundStore(state => state.pause);
   const masterAudioSoundRef = useRef<HTMLAudioElement>(null);
-  const artworkURL = isDarkTheme ? '/logo-dark.png' : '/logo-light.png';
 
   useEffect(() => {
     if (!isBrowser || !isPlaying) return;
 
-    navigator.mediaSession.metadata = new MediaMetadata({
-      ...metadata,
-      artwork: [
-        {
-          sizes: '200x200',
-          src: artworkURL,
-          type: 'image/png',
-        },
-      ],
-    });
-  }, [artworkURL, isBrowser, isDarkTheme, isPlaying]);
+    navigator.mediaSession.metadata = new MediaMetadata(metadata);
+  }, [isBrowser, isPlaying]);
 
   const startMasterAudio = useCallback(async () => {
     if (!masterAudioSoundRef.current) return;
